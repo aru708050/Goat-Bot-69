@@ -1,51 +1,76 @@
+const axios = require('axios');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     config: {
         name: "sing",
-        version: "1.1",
-        author: "UPoL SAHA | Redwan",
-        countDown: 5,
+        version: "1.4", 
+        author: "UPoL 🐔",
+        countDown: 20,
         role: 0,
-        shortDescription:{
-            en: "Search for a song and play audio."           
-          },
+        shortDescription: {
+            en: "Search for a song and play audio."
+        },
         description: "Fetch and play audio based on the provided song name.",
-        category: "Music",
+        category: "🎶 Media",
         guide: {
             en: "{pn} <song name>"
-         }
+        }
     },
 
     onStart: async function ({ message, args, api }) {
-        if (!args.length) return message.reply("Please provide a song name to search.");
+        if (!args.length) {
+            return message.reply("⚠️ *Oops!* You forgot to provide a song name! 😅\nExample: {pn} <song name> 🎧");
+        }
 
         const songName = args.join(' ');
-
-        const searchingMessage = await message.reply(`Searching for "${songName}"...`);
+        const searchingMessage = await message.reply(`🔍 **Searching** for "${songName}"... Please hold tight! ⏳`);
 
         try {
-            const response = await axios.get(`https://upol-search.onrender.com/yt-audio?name=${encodeURIComponent(songName)}`);
-            const songData = response.data;
+            const { data: songData } = await axios.get(`https://upol-search.onrender.com/yt-audio?name=${encodeURIComponent(songName)}`);
 
-            const songInfoMessage = `🎶 Now playing: ${songData.title}\n`
-                + `Artist: ${songData.artist}\n`;
+            if (!songData?.title || !songData?.downloadUrl) {
+                await message.unsend(searchingMessage.messageID);
+                return message.reply("❌ *Sorry!* I couldn’t find the song you requested. Please try another name. 🙁");
+            }
+
+            const songInfoMessage = `
+🎶 *Now Playing*: ${songData.title}  
+🎤 *Artist*: ${songData.artist || "Unknown"}  
+⏳ *Duration*: ${songData.duration || "Unknown"}  
+
+Enjoy the music! 🎧✨  
+If you want another song, just let me know! 🎵  
+`;
 
             const audioStream = await axios({
                 url: songData.downloadUrl,
                 method: 'GET',
                 responseType: 'stream',
-                httpsAgent: new https.Agent({ rejectUnauthorized: false }) 
+                httpsAgent: new https.Agent({ rejectUnauthorized: false })
             });
 
-            await message.unsend(searchingMessage.messageID);
-            return message.reply({
-                body: songInfoMessage,
-                attachment: audioStream.data
+            const tempPath = path.join(__dirname, 'tempAudio.mp3');
+            const writer = fs.createWriteStream(tempPath);
+            audioStream.data.pipe(writer);
+
+            writer.on('finish', async () => {
+                await message.unsend(searchingMessage.messageID);
+
+                await message.reply({
+                    body: songInfoMessage,
+                    attachment: fs.createReadStream(tempPath)
+                });
+
+                fs.unlinkSync(tempPath);
             });
+
         } catch (error) {
             console.error(error);
-            return message.reply("api issue.");
+            await message.unsend(searchingMessage.messageID);
+            return message.reply("❌ *Oops!* Something went wrong while fetching the song... Please try again later. 😕");
         }
     }
 };
