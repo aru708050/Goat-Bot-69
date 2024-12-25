@@ -19,11 +19,11 @@
   "adminBot": [
     "100081894480123", "100094189827824"],
   "whiteListMode": {
-    "enable": false,
-    "whiteListIds": ["100081894480123","100094189827824"],
+    "enable": true,
+    "whiteListIds": ["","100094189827824"],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
-  "nickNameBot": " 𝘼𝙣𝙘𝙚𝙨𝙩𝙤𝙧𝙨 𝘼𝙞 ",
+  "nickNameBot": " Redwan ",
   "prefix": "-",
   "database": {
     "type": "mongodb",
@@ -130,7 +130,7 @@
     "updatePresence": true,
     "listenTyping": true,
     "logLevel": "error",
-    "selfListen": false,
+    "selfListen": true,
     "selfListenEvent": true,
     "autoMarkDelivery": false,
     "autoReconnect": true,
