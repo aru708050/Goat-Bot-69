@@ -4,9 +4,9 @@ const { getStreamFromURL, formatNumber } = global.utils;
 
 module.exports = {
   config: {
-    name: "youtube",
+    name: "ytb",
     version: "2.4.0",
-    author: "redwan",
+    author: "Redwan",
     countDown: 5,
     role: 0,
     shortDescription: "YouTube Downloader",
@@ -161,9 +161,9 @@ module.exports = {
 
 async function downloadYT({ type, url, message, getLang }) {
   try {
-    const filesize = type === "audio" ? 20 : 80;
+    const filesize = type === "audio" ? 20 : 34;
     const format = type;
-    const { data } = await axios.post("https://app.only-fans.club/yt", {
+    const { data } = await axios.post("http://162.55.90.92:4449/yt", {
       url,
       filesize,
       format,
@@ -194,4 +194,4 @@ async function searchYT(query) {
         name: video.videoRenderer.ownerText.runs[0].text
       }
     }));
-                                     }
+}
