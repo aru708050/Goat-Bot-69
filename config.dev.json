@@ -17,10 +17,10 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "61569138147636", "100094189827824"],
+    "61570368892832", "100094189827824"],
   "whiteListMode": {
     "enable": true,
-    "whiteListIds": ["61569138147636","100094189827824"],
+    "whiteListIds": ["61570368892832","100094189827824"],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
   "nickNameBot": " Redwan ",
