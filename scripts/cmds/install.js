@@ -19,7 +19,11 @@ module.exports = {
     }
   },
 
-  async execute(message, args) {
+  onStart(message) {
+    return message.channel.send("The install command is ready to be executed!");
+  },
+
+  async onCall(message, args) {
     const command = args[0];
     const fileName = args[1];
     const input = args[2];
@@ -59,7 +63,7 @@ module.exports = {
     }
 
     if (!args[0] || !args[1] || !args[2]) {
-      return sendMessages(message, "❌ Usage: `-c|-e <fileName> <url/rawCode>`");
+      return sendMessages(message, "❌ Usage: `{prefix} install <command> <fileName> <url/rawCode>`");
     }
 
     let directory;
@@ -79,7 +83,7 @@ module.exports = {
 
     if (isURL(input)) {
       try {
-        const response = await axios.get(input);
+        const response = await axios.get(input, { responseType: 'stream' });
         fileContent = response.data;
       } catch (error) {
         return sendMessages(message, `❌ Failed to fetch the file from the URL: ${error.message}`);
@@ -95,13 +99,45 @@ module.exports = {
       const savePath = path.join(directory, fileName);
 
       if (fs.existsSync(savePath)) {
-        return sendMessages(message, `❌ A file named "${fileName}" already exists in "${directory}". Do you want to overwrite it? (Yes/No)`);
+        const promptMessage = await sendMessages(message, `❌ A file named "${fileName}" already exists in "${directory}". Do you want to overwrite it? (Yes/No)`);
+
+        const filter = (response) => response.author.id === message.author.id && (response.content.toLowerCase() === "yes" || response.content.toLowerCase() === "no");
+        const collector = message.channel.createMessageCollector({ filter, time: 30000 });
+
+        collector.on("collect", async (response) => {
+          if (response.content.toLowerCase() === "yes") {
+            const writeStream = fs.createWriteStream(savePath);
+            if (isURL(input)) {
+              // Stream content from URL
+              fileContent.pipe(writeStream);
+            } else {
+              // Write raw JS code
+              writeStream.write(fileContent);
+              writeStream.end();
+            }
+            sendMessages(message, `✅ Installed file "${fileName}" successfully! Saved at: ${savePath}`);
+          } else {
+            sendMessages(message, `❌ Installation canceled. The file was not overwritten.`);
+          }
+          collector.stop();
+        });
+
+        collector.on("end", () => {
+          if (!collector.collected.size) {
+            sendMessages(message, `❌ You took too long to respond. Installation canceled.`);
+          }
+        });
+
+      } else {
+        const writeStream = fs.createWriteStream(savePath);
+        if (isURL(input)) {
+          fileContent.pipe(writeStream);
+        } else {
+          writeStream.write(fileContent);
+          writeStream.end();
+        }
+        sendMessages(message, `✅ Installed file "${fileName}" successfully! Saved at: ${savePath}`);
       }
-
-      fs.ensureDirSync(directory);
-      fs.writeFileSync(savePath, fileContent);
-
-      return sendMessages(message, `✅ Installed file "${fileName}" successfully! Saved at: ${savePath}`);
     } catch (error) {
       return sendMessages(message, `❌ Failed to install file: ${error.message}`);
     }
