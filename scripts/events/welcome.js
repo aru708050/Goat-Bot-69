@@ -5,8 +5,8 @@ if (!global.temp.welcomeEvent)
 module.exports = {
 	config: {
 		name: "welcome",
-		version: "1.7",
-		author: "NTKhang",
+		version: "1.8",
+		author: "ntkhang x Redwan",
 		category: "events"
 	},
 
@@ -41,25 +41,23 @@ module.exports = {
 				const { nickNameBot } = global.GoatBot.config;
 				const prefix = global.utils.getPrefix(threadID);
 				const dataAddedParticipants = event.logMessageData.addedParticipants;
-				// if new member is bot
+
 				if (dataAddedParticipants.some((item) => item.userFbId == api.getCurrentUserID())) {
 					if (nickNameBot)
 						api.changeNickname(nickNameBot, threadID, api.getCurrentUserID());
 					return message.send(getLang("welcomeMessage", prefix));
 				}
-				// if new member:
+
 				if (!global.temp.welcomeEvent[threadID])
 					global.temp.welcomeEvent[threadID] = {
 						joinTimeout: null,
 						dataAddedParticipants: []
 					};
 
-				// push new member to array
 				global.temp.welcomeEvent[threadID].dataAddedParticipants.push(...dataAddedParticipants);
-				// if timeout is set, clear it
+
 				clearTimeout(global.temp.welcomeEvent[threadID].joinTimeout);
 
-				// set new timeout
 				global.temp.welcomeEvent[threadID].joinTimeout = setTimeout(async function () {
 					const threadData = await threadsData.get(threadID);
 					if (threadData.settings.sendWelcomeMessage == false)
@@ -83,17 +81,14 @@ module.exports = {
 							id: user.userFbId
 						});
 					}
-					// {userName}:   name of new member
-					// {multiple}:
-					// {boxName}:    name of group
-					// {threadName}: name of group
-					// {session}:    session of day
 					if (userName.length == 0) return;
-					let { welcomeMessage = getLang("defaultWelcomeMessage") } =
-						threadData.data;
+
+					let { welcomeMessage = getLang("defaultWelcomeMessage") } = threadData.data;
+
 					const form = {
 						mentions: welcomeMessage.match(/\{userNameTag\}/g) ? mentions : null
 					};
+
 					welcomeMessage = welcomeMessage
 						.replace(/\{userName\}|\{userNameTag\}/g, userName.join(", "))
 						.replace(/\{boxName\}|\{threadName\}/g, threadName)
@@ -114,16 +109,31 @@ module.exports = {
 
 					form.body = welcomeMessage;
 
+					const gifUrl = "https://i.ibb.co/dt1ND27/image.gif";
+					const attachments = [];
+
 					if (threadData.data.welcomeAttachment) {
 						const files = threadData.data.welcomeAttachment;
-						const attachments = files.reduce((acc, file) => {
+						const fileAttachments = files.reduce((acc, file) => {
 							acc.push(drive.getFile(file, "stream"));
 							return acc;
 						}, []);
-						form.attachment = (await Promise.allSettled(attachments))
-							.filter(({ status }) => status == "fulfilled")
-							.map(({ value }) => value);
+						attachments.push(...fileAttachments);
 					}
+
+					try {
+						const gifStream = await global.utils.getStreamFromURL(gifUrl);
+						attachments.push(gifStream);
+					} catch (err) {
+						console.error(`Failed to fetch GIF: ${err.message}`);
+					}
+
+					form.attachment = (
+						await Promise.allSettled(attachments)
+					)
+						.filter(({ status }) => status == "fulfilled")
+						.map(({ value }) => value);
+
 					message.send(form);
 					delete global.temp.welcomeEvent[threadID];
 				}, 1500);
