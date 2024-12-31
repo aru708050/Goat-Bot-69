@@ -1,76 +1,219 @@
-const axios = require('axios');
-const https = require('https');
-const fs = require('fs');
+const axios = require("axios");
+
+const fs = require('fs-extra');
+
 const path = require('path');
 
-module.exports = {
-    config: {
-        name: "sing",
-        version: "1.4", 
-        author: "UPoL 🐔",
-        countDown: 20,
-        role: 0,
-        shortDescription: {
-            en: "Search for a song and play audio."
-        },
-        description: "Fetch and play audio based on the provided song name.",
-        category: "🎶 Media",
-        guide: {
-            en: "{pn} <song name>"
-        }
-    },
+const { getStreamFromURL, shortenURL, randomString } = global.utils;
 
-    onStart: async function ({ message, args, api }) {
-        if (!args.length) {
-            return message.reply("⚠️ *Oops!* You forgot to provide a song name! 😅\nExample: {pn} <song name> 🎧");
-        }
 
-        const songName = args.join(' ');
-        const searchingMessage = await message.reply(`🔍 **Searching** for "${songName}"... Please hold tight! ⏳`);
 
-        try {
-            const { data: songData } = await axios.get(`https://upol-search.onrender.com/yt-audio?name=${encodeURIComponent(songName)}`);
+const API_KEYS = [
 
-            if (!songData?.title || !songData?.downloadUrl) {
-                await message.unsend(searchingMessage.messageID);
-                return message.reply("❌ *Sorry!* I couldn’t find the song you requested. Please try another name. 🙁");
+    'b38444b5b7mshc6ce6bcd5c9e446p154fa1jsn7bbcfb025b3b',
+
+];
+
+
+
+async function video(api, event, args, message) {
+
+    api.setMessageReaction("🕢", event.messageID, (err) => {}, true);
+
+    try {
+
+        let title = '';
+
+        let shortUrl = '';
+
+        let videoId = '';
+
+
+
+        const extractShortUrl = async () => {
+
+            const attachment = event.messageReply.attachments[0];
+
+            if (attachment.type === "video" || attachment.type === "audio") {
+
+                return attachment.url;
+
+            } else {
+
+                throw new Error("Invalid attachment type.");
+
             }
 
-            const songInfoMessage = `
-🎶 *Now Playing*: ${songData.title}  
-🎤 *Artist*: ${songData.artist || "Unknown"}  
-⏳ *Duration*: ${songData.duration || "Unknown"}  
+        };
 
-Enjoy the music! 🎧✨  
-If you want another song, just let me know! 🎵  
-`;
 
-            const audioStream = await axios({
-                url: songData.downloadUrl,
-                method: 'GET',
-                responseType: 'stream',
-                httpsAgent: new https.Agent({ rejectUnauthorized: false })
-            });
 
-            const tempPath = path.join(__dirname, 'tempAudio.mp3');
-            const writer = fs.createWriteStream(tempPath);
-            audioStream.data.pipe(writer);
+        const getRandomApiKey = () => {
 
-            writer.on('finish', async () => {
-                await message.unsend(searchingMessage.messageID);
+            const randomIndex = Math.floor(Math.random() * API_KEYS.length);
 
-                await message.reply({
-                    body: songInfoMessage,
-                    attachment: fs.createReadStream(tempPath)
-                });
+            return API_KEYS[randomIndex];
 
-                fs.unlinkSync(tempPath);
-            });
+        };
 
-        } catch (error) {
-            console.error(error);
-            await message.unsend(searchingMessage.messageID);
-            return message.reply("❌ *Oops!* Something went wrong while fetching the song... Please try again later. 😕");
+
+
+        if (event.messageReply && event.messageReply.attachments && event.messageReply.attachments.length > 0) {
+
+            shortUrl = await extractShortUrl();
+
+            const musicRecognitionResponse = await axios.get(`https://audio-recon-ahcw.onrender.com/kshitiz?url=${encodeURIComponent(shortUrl)}`);
+
+            title = musicRecognitionResponse.data.title;
+
+            const searchResponse = await axios.get(`https://youtube-kshitiz-gamma.vercel.app/yt?search=${encodeURIComponent(title)}`);
+
+            if (searchResponse.data.length > 0) {
+
+                videoId = searchResponse.data[0].videoId;
+
+            }
+
+
+
+            shortUrl = await shortenURL(shortUrl);
+
+        } else if (args.length === 0) {
+
+            message.reply("Please provide a video name or reply to a video or audio attachment.");
+
+            return;
+
+        } else {
+
+            title = args.join(" ");
+
+            const searchResponse = await axios.get(`https://youtube-kshitiz-gamma.vercel.app/yt?search=${encodeURIComponent(title)}`);
+
+            if (searchResponse.data.length > 0) {
+
+                videoId = searchResponse.data[0].videoId;
+
+            }
+
+
+
+            const videoUrlResponse = await axios.get(`https://mr-kshitizyt-hfhj.onrender.com/download?id=${encodeURIComponent(videoId)}&apikey=${getRandomApiKey()}`);
+
+            if (videoUrlResponse.data.length > 0) {
+
+                shortUrl = await shortenURL(videoUrlResponse.data[0]);
+
+            }
+
         }
+
+
+
+        if (!videoId) {
+
+            message.reply("No video found for the given query.");
+
+            return;
+
+        }
+
+
+
+        const downloadResponse = await axios.get(`https://mr-kshitizyt-hfhj.onrender.com/download?id=${encodeURIComponent(videoId)}&apikey=${getRandomApiKey()}`);
+
+        const videoUrl = downloadResponse.data[0];
+
+
+
+        if (!videoUrl) {
+
+            message.reply("Failed to retrieve download link for the video.");
+
+            return;
+
+        }
+
+
+
+        const writer = fs.createWriteStream(path.join(__dirname, "cache", `${videoId}.mp3`));
+
+        const response = await axios({
+
+            url: videoUrl,
+
+            method: 'GET',
+
+            responseType: 'stream'
+
+        });
+
+
+
+        response.data.pipe(writer);
+
+
+
+        writer.on('finish', () => {
+
+            const videoStream = fs.createReadStream(path.join(__dirname, "cache", `${videoId}.mp3`));
+
+            message.reply({ body: `📹 Playing: ${title}`, attachment: videoStream });
+
+            api.setMessageReaction("✅", event.messageID, () => {}, true);
+
+        });
+
+
+
+        writer.on('error', (error) => {
+
+            console.error("Error:", error);
+
+            message.reply("Error downloading the video.");
+
+        });
+
+    } catch (error) {
+
+        console.error("Error:", error);
+
+        message.reply("An error occurred.");
+
     }
+
+}
+
+
+
+module.exports = {
+
+    config: {
+
+        name: "sing", 
+
+        version: "1.0",
+
+        author: "Vex_Kshitiz",
+
+        countDown: 10,
+
+        role: 0,
+
+        shortDescription: "play audio from youtube",
+
+        longDescription: "play audio from youtube support audio recognition.",
+
+        category: "music",
+
+        guide: "{p} audio videoname / reply to audio or video" 
+
+    },
+
+    onStart: function ({ api, event, args, message }) {
+
+        return video(api, event, args, message);
+
+    }
+
 };
