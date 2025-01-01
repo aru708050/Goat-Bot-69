@@ -31,14 +31,13 @@ module.exports = {
       return api.sendMessage("⚠️ | Please provide a prompt to generate images.", event.threadID, event.messageID);
     }
 
-    api.sendMessage(" 💋✨ | Get Your Dick Ready.. Hold it tight!", event.threadID, event.messageID);
+    api.sendMessage("💋✨ | Wait Let Me Make You Horny. Hold your dick tightly!", event.threadID, event.messageID);
 
     try {
       const hfApiUrl = `https://global-redwan-nsfw-api.onrender.com/generate?prompt=${encodeURIComponent(prompt)}`;
       const hfResponse = await axios.get(hfApiUrl);
-      const images = hfResponse.data.images || [];
+      const imageUrls = hfResponse.data.images || [];
 
-      const imageUrls = images.map(img => img.imageUrl);
       while (imageUrls.length < 4) {
         imageUrls.push("[Empty Slot]");
       }
@@ -81,7 +80,7 @@ module.exports = {
       }
       const buffer = await axios.get(selectedImageUrl, { responseType: "arraybuffer" }).then(res => res.data);
       return message.reply({
-        body: `💋👀| Here's your selected image babe!`,
+        body: `👀 | Feels Like You-re Too Horny!`,
         attachment: Buffer.from(buffer),
       });
     } else {
