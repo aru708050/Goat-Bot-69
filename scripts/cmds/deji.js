@@ -1,89 +1,91 @@
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
-
-const dailyRequestCache = {};
+const axios = require('axios');
+const { getStreamFromURL } = global.utils;
 
 module.exports = {
   config: {
     name: "deji",
-    aliases: ["deji journey", "animagine"],
-    author: "Redwan",
-    version: "1.1",
-    cooldowns: 20,
-    role: 2,
-    shortDescription: "Generate an anima image based on a prompt.",
-    longDescription: "Generates an image using the provided prompt.",
-    category: "ai",
-    guide: "{p} imagine <type> <prompt>",
+    version: "1.0",
+    author: "Redwan - Iconic Innovator",
+    aliases: ["animegen", "animeart", "dejiart"],
+    countDown: 0,
+    longDescription: {
+      en: "Dive into the realm of anime and bring your imagination to life with iconic anime-style image generation.",
+    },
+    category: "image",
+    role: 0,
+    guide: {
+      en: "{pn} <prompt>",
+    },
   },
 
-  onStart: async function ({ message, args, api, event, role }) {
-    const obfuscatedAuthor = String.fromCharCode(82, 101, 100, 119, 97, 110);
-    if (this.config.author !== obfuscatedAuthor) {
-      return api.sendMessage("❌ | You are not authorized to change the author name.", event.threadID, event.messageID);
-    }
+  onStart: async function ({ api, event, args, message }) {
+    const prompt = args.join(' ').trim();
 
-    const userId = event.senderID;
-    const isAdmin = role >= 1;
-
-    if (!isAdmin && !canGenerateImage(userId)) {
-      return api.sendMessage("❌ | Normal users can generate only 4 images per day. Please try again tomorrow.", event.threadID, event.messageID);
-    }
-
-    const prompt = args.join(" ");
     if (!prompt) {
-      return api.sendMessage("❌ | You need to provide a prompt.", event.threadID, event.messageID);
+      return message.reply("🌟 *A world of anime awaits.* Share your prompt to summon iconic creations from another realm.");
     }
 
-    api.sendMessage("✨ Creating your magical anime-inspired image. Hold tight!", event.threadID, event.messageID);
+    message.reply("✨ *Bringing your anime dream to life...* Hold tight as the magic unfolds!", async (err, info) => {
+      if (err) return console.error(err);
+
+      try {
+        const apiUrl = `https://global-redwan-paid-anime-apis.onrender.com/generate?prompt=${encodeURIComponent(prompt)}`;
+        const response = await axios.get(apiUrl);
+        const { collage, images } = response.data;
+
+        if (!collage || !images || !images.length) {
+          return message.reply("🚫 *Summoning failed.* The anime gods couldn’t interpret your vision. Try a new prompt.");
+        }
+
+        message.reply(
+          {
+            body: "🎨 *Your anime masterpiece has arrived!*\nReply with a number (1, 2, 3, or 4) to explore individual details.",
+            attachment: await getStreamFromURL(collage, "anime_collage.png"),
+          },
+          (err, info) => {
+            if (err) return console.error(err);
+
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName: this.config.name,
+              messageID: info.messageID,
+              author: event.senderID,
+              images,
+            });
+          }
+        );
+      } catch (error) {
+        console.error(error);
+        message.reply("💥 *The anime summoning spell failed.* Something went wrong. Please try again.");
+      }
+    });
+  },
+
+  onReply: async function ({ api, event, Reply, args, message }) {
+    const userChoice = parseInt(event.body.trim());
+    const { author, images } = Reply;
+
+    if (event.senderID !== author) {
+      return message.reply("⚠️ *Only the summoner may respond.* Please respect the magic!");
+    }
+
+    if (isNaN(userChoice) || userChoice < 1 || userChoice > images.length) {
+      return message.reply(`❌ *Magic misfire.* Choose a number between 1 and ${images.length} to reveal an image.`);
+    }
 
     try {
-      const redwanapisApiUrl = `https://global-redwan-paid-anime-apis.onrender.com/generate?prompt=${encodeURIComponent(prompt)}`;
-      const redwanapisResponse = await axios.get(redwanapisApiUrl, { responseType: "arraybuffer" });
-
-      const cacheFolderPath = path.join(__dirname, "cache");
-      if (!fs.existsSync(cacheFolderPath)) {
-        fs.mkdirSync(cacheFolderPath);
+      const selectedImage = images[userChoice - 1][`Image ${userChoice}`];
+      if (!selectedImage) {
+        return message.reply("❌ *Vision blurred.* Unable to fetch the selected image. Try again.");
       }
 
-      const imagePath = path.join(cacheFolderPath, `${Date.now()}_generated_image.png`);
-      fs.writeFileSync(imagePath, Buffer.from(redwanapisResponse.data));
-
-      const stream = fs.createReadStream(imagePath);
+      const imageStream = await getStreamFromURL(selectedImage, `anime_image${userChoice}.png`);
       message.reply({
-        body: "✨ | Here is your generated image!",
-        attachment: stream,
+        body: `✨ *Behold your anime creation (${userChoice}).* Dive deeper into the art!`,
+        attachment: imageStream,
       });
-
-      if (!isAdmin) logRequest(userId);
     } catch (error) {
-      console.error("Error generating image:", error.message || error);
-      api.sendMessage("❌ | An error occurred. Please try again later.", event.threadID, event.messageID);
+      console.error(error);
+      message.reply("💥 *The anime magic faltered.* Something went wrong fetching the image. Please try again.");
     }
   },
 };
-
-function canGenerateImage(userId) {
-  const today = new Date().toISOString().slice(0, 10);
-  if (!dailyRequestCache[userId]) {
-    dailyRequestCache[userId] = { date: today, count: 0 };
-  }
-
-  const userCache = dailyRequestCache[userId];
-  if (userCache.date !== today) {
-    userCache.date = today;
-    userCache.count = 0;
-  }
-
-  return userCache.count < 4;
-}
-
-function logRequest(userId) {
-  const today = new Date().toISOString().slice(0, 10);
-  if (!dailyRequestCache[userId]) {
-    dailyRequestCache[userId] = { date: today, count: 0 };
-  }
-
-  dailyRequestCache[userId].count++;
-}
