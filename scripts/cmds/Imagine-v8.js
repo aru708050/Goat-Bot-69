@@ -8,7 +8,7 @@ let generatedImages = [];
 
 module.exports = {
   config: {
-    name: "imagine-v8",
+    name: "imaginev8",
     aliases: ["imagine", "gen8"],
     author: "Crafted by Redwan, pushing the boundaries of imagination.",
     version: "1.0",
