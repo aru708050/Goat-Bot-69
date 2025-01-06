@@ -1,16 +1,16 @@
 const { post, get } = require("axios");
 module.exports = {
  config: { 
- name: "uwu", // Changed from "gpt" to "ai"
+ name: "xemon", 
  category: "ai" 
  },
  onStart() {},
  
  onChat: async ({ message: { reply: r }, args: a, event: { senderID: s, threadID: t, body: b, messageReply: msg}, commandName, usersData, globalData, role }) => {
- const cmd = `${module.exports.config.name}`; // Now "uwu"
+ const cmd = `${module.exports.config.name}`;
  const pref = `${utils.getPrefix(t)}`;
  const pr = [`${pref}${cmd}`, `${cmd}`];
- const _m = "uwu"; // Changed from "gpt" to "ai"
+ const _m = "xemon";
  if (a[0] && pr.some(x => a[0].toLowerCase() === x)) {
  const p = a.slice(1);
  const assistant = [
@@ -49,7 +49,7 @@ module.exports = {
  await usersData.set(s, { settings: { system: choice } });
  return r(`Assistant changed to ${choice}`);
  }
- return r(`Invalid choice.\nAllowed: ${num}\nExample: ai set friendly`); // Updated example from "gpt" to "ai"
+ return r(`Invalid choice.\nAllowed: ${num}\nExample: ai set friendly`);
  }
  if (p[0] === 'nsfw') {
  if (role < 2) {
@@ -81,10 +81,10 @@ module.exports = {
  return r(`Error setting model: ${error}`);
  }
  } else {
- return r(`Please choose only number\navailable models:\n${Object.entries(models).map(([id, name]) => `${id}: ${name}`).join("\n")}\n\nExample: ${pref}${cmd} model 1`); // Updated example from "gpt" to "ai"
+ return r(`Please choose only number\navailable models:\n${Object.entries(models).map(([id, name]) => `${id}: ${name}`).join("\n")}\n\nExample: ${pref}${cmd} model 1`);
  }
  }
- let Gpt = await globalData.get(_m); // Variable name can stay as Gpt or be changed to Ai for consistency
+ let Gpt = await globalData.get(_m); 
  if (!Gpt || Gpt === "undefined") {
  await globalData.create(_m, { data: { model: "llama", nsfw: false } }); 
  Gpt = await globalData.get(_m);
@@ -120,7 +120,7 @@ module.exports = {
  event: { senderID: x, body: b, attachments, threadID: t }, 
  usersData 
  }) => {
- const cmd = `${module.exports.config.name}`; // Now "ai"
+ const cmd = `${module.exports.config.name}`;
  const pref = `${utils.getPrefix(t)}`;
  const { name, settings, gender } = await usersData.get(x);
  const sys = settings.system || "helpful";
@@ -163,7 +163,6 @@ module.exports = {
  }
 };
 
-//llama3-70b-8192
 async function ai(prompt, id, name, system, gender, model, nsfw, link = "") {
  const g4o = async (p, m = "gemma2-9b-it") => post(atob(String.fromCharCode(...atob((await get(atob("aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2p1bnpkZXZvZmZpY2lhbC90ZXN0L3JlZnMvaGVhZHMvbWFpbi90ZXN0LnR4dA=="))).data).split(" ").map(Number))),
  { 
@@ -182,7 +181,7 @@ async function ai(prompt, id, name, system, gender, model, nsfw, link = "") {
  ],
  gender, 
  nsfw,
- url: link ? link : undefined, /*@{object} { link, type: "image or mp3" } */
+ url: link ? link : undefined, 
  config: [{ 
  gemini: {
  apikey: "AIzaSyAqigdIL9j61bP-KfZ1iz6tI9Q5Gx2Ex_o", 
@@ -207,7 +206,6 @@ async function ai(prompt, id, name, system, gender, model, nsfw, link = "") {
  return res.data;
  } catch {
  try {
- // await g4o("clear");
  return (await g4o(prompt, "llama-3.1-70b-versatile")).data;
  } catch (err) {
  const e = err.response?.data;
@@ -218,4 +216,4 @@ async function ai(prompt, id, name, system, gender, model, nsfw, link = "") {
  { result: e?.error || e || err.message };
  }
  }
-    }
+}
