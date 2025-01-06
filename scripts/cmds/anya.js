@@ -6,15 +6,15 @@ module.exports = {
   config: {
     name: "anya",
     aliases: [],
-    author: "kshitiz",
-    version: "2.0",
+    author: "Redwan",
+    version: "3.0",
     cooldowns: 5,
     role: 0,
     shortDescription: {
-      en: ""
+      en: "Chat with Anya forger"
     },
     longDescription: {
-      en: "Chat with Anya forger"
+      en: "Chat with Anya forger and this is not vex ones okay"
     },
     category: "ai",
     guide: {
