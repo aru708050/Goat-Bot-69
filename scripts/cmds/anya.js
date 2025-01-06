@@ -49,7 +49,7 @@ module.exports = {
       );
       const translatedText = translateResponse.data[0][0][0];
 
-      const audioPath = resolve(__dirname, "cache", `${threadID}_${senderID}.wav`);
+      
       const ttsResponse = await axios.get(
         `https://golbal-redwan-anya-voice-api.onrender.com/anya?text=${encodeURIComponent(translatedText)}`
       );
@@ -58,7 +58,9 @@ module.exports = {
         return message.reply("Failed to generate Anya's voice. Please try again later.");
       }
 
-      const audioUrl = ttsResponse.data.data.mp3StreamingUrl;
+      const audioUrl = ttsResponse.data.data.mp3StreamingUrl; 
+
+      const audioPath = resolve(__dirname, "cache", `${threadID}_${senderID}.mp3`);
 
       await global.utils.downloadFile(audioUrl, audioPath);
 
@@ -69,7 +71,7 @@ module.exports = {
           attachment: audioStream,
         },
         threadID,
-        () => unlinkSync(audioPath)
+        () => unlinkSync(audioPath) 
       );
     } catch (error) {
       console.error(error);
