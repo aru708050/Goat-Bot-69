@@ -11,15 +11,15 @@ module.exports = {
     cooldowns: 5,
     role: 0,
     shortDescription: {
-      en: "Chat with Anya forger"
+      en: "Chat with Anya Forger",
     },
     longDescription: {
-      en: "Chat with Anya forger and this is not vex ones okay"
+      en: "Chat with Anya Forger. This is not Vex's version, okay?",
     },
     category: "ai",
     guide: {
-      en: "{p}{n} [text]"
-    }
+      en: "{p}{n} [text]",
+    },
   },
   onStart: async function ({ api, event, args, message }) {
     try {
@@ -33,40 +33,47 @@ module.exports = {
           return userInfo[userID].firstName;
         } catch (error) {
           console.error(`Error fetching user info: ${error}`);
-          return '';
+          return "User";
         }
       };
 
-      const [a, b, c, d] = ["Konichiwa", "senpai", "Hora"];
-
-      const k = await getUserInfo(api, senderID);
-      const ranGreet = `${a} ${k} ${b}`;
+      const [a, b] = ["Konichiwa", "senpai"];
+      const userName = await getUserInfo(api, senderID);
+      const greeting = `${a} ${userName} ${b}`;
 
       const chat = args.join(" ");
+      if (!args[0]) return message.reply(greeting);
 
-      if (!args[0]) return message.reply(ranGreet);
+      const translateResponse = await axios.get(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ja&dt=t&q=${encodeURIComponent(chat)}`
+      );
+      const translatedText = translateResponse.data[0][0][0];
 
-      const tranChat = await axios.get(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ja&dt=t&q=${encodeURIComponent(chat)}`);
+      const audioPath = resolve(__dirname, "cache", `${threadID}_${senderID}.wav`);
+      const ttsResponse = await axios.get(
+        `https://golbal-redwan-anya-voice-api.onrender.com/anya?text=${encodeURIComponent(translatedText)}`
+      );
 
-      const l = tranChat.data[0][0][0];
+      if (!ttsResponse.data.success) {
+        return message.reply("Failed to generate Anya's voice. Please try again later.");
+      }
 
-      const m = resolve(__dirname, 'cache', `${threadID}_${senderID}.wav`);
+      const audioUrl = ttsResponse.data.data.mp3StreamingUrl;
 
-      const n = await axios.get(`https://api.tts.quest/v3/voicevox/synthesis?text=${encodeURIComponent(l)}&speaker=3&fbclid=IwAR01Y4UydrYh7kvt0wxmExdzoFTL30VkXsLZZ2HjXjDklJsYy2UR3b9uiHA`);
+      await global.utils.downloadFile(audioUrl, audioPath);
 
-      const o = n.data.mp3StreamingUrl;
-
-      await global.utils.downloadFile(o, m);
-
-      const p = createReadStream(m);
-
-      message.reply({
-        body: l,
-        attachment: p
-      }, threadID, () => unlinkSync(m));
+      const audioStream = createReadStream(audioPath);
+      message.reply(
+        {
+          body: translatedText,
+          attachment: audioStream,
+        },
+        threadID,
+        () => unlinkSync(audioPath)
+      );
     } catch (error) {
       console.error(error);
-      message.reply("error");
+      message.reply("An error occurred while processing your request. Please try again later.");
     }
-  }
+  },
 };
