@@ -5,7 +5,7 @@ const path = require('path');
 module.exports.config = {
     name: "artify",
     version: "1.0.0",
-    author: "Priyanshi Kaur",
+    author: "Redwan | Samir Api",
     countDown: 5,
     role: 0,
     shortDescription: "Apply an artistic style to an image",
@@ -40,25 +40,25 @@ module.exports.onStart = async function ({ api, event, message }) {
             responseType: 'arraybuffer'
         });
 
-        // Create temporary file path
+        
         const tempFilePath = path.join(__dirname, "temp", `artified_${Date.now()}.jpg`);
         
-        // Ensure temp directory exists
+        
         if (!fs.existsSync(path.join(__dirname, "temp"))) {
             fs.mkdirSync(path.join(__dirname, "temp"));
         }
 
-        // Write the image to temporary file
+        
         fs.writeFileSync(tempFilePath, Buffer.from(response.data));
 
-        // Send the artified image
+        
         await api.sendMessage(
             {
                 attachment: fs.createReadStream(tempFilePath),
                 body: "🎨 Here's your artified image!"
             },
             threadID,
-            () => fs.unlinkSync(tempFilePath) // Clean up temp file after sending
+            () => fs.unlinkSync(tempFilePath) 
         );
 
     } catch (error) {
