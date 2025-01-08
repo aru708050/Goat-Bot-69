@@ -7,13 +7,14 @@ module.exports = {
     category: "texts",
     guide: {
       vi: "Not Available",
-      en: "cpx @(mention)"
+      en: "cpx @(mention) [loop]"
     }
   },
 
-  onStart: async function ({ api, event, userData, args }) {
+  onStart: async function ({ api, event, args }) {
     var mention = Object.keys(event.mentions)[0];
     if (!mention) return api.sendMessage("Need to tag 1 friend whom you want to scold with bad words", event.threadID);
+
     let name = event.mentions[mention];
     var arraytag = [];
     arraytag.push({ id: mention, tag: name });
@@ -46,10 +47,23 @@ module.exports = {
     ];
 
     var delay = 3000;
-    messages.forEach((msg, index) => {
-      setTimeout(() => {
-        api.sendMessage({ body: msg, mentions: arraytag }, event.threadID);
-      }, index * delay);
-    });
+
+    if (args[1] === "loop") {
+      function sendLoopMessages() {
+        messages.forEach((msg, index) => {
+          setTimeout(() => {
+            api.sendMessage({ body: msg, mentions: arraytag }, event.threadID);
+          }, index * delay);
+        });
+        setTimeout(sendLoopMessages, messages.length * delay);
+      }
+      sendLoopMessages();
+    } else {
+      messages.forEach((msg, index) => {
+        setTimeout(() => {
+          api.sendMessage({ body: msg, mentions: arraytag }, event.threadID);
+        }, index * delay);
+      });
+    }
   }
 };
