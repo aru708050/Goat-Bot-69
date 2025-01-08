@@ -48,22 +48,16 @@ module.exports = {
 
     var delay = 3000;
 
-    if (args[1] === "loop") {
-      function sendLoopMessages() {
-        messages.forEach((msg, index) => {
-          setTimeout(() => {
-            api.sendMessage({ body: msg, mentions: arraytag }, event.threadID);
-          }, index * delay);
-        });
-        setTimeout(sendLoopMessages, messages.length * delay);
+    async function sendMessagesLoop() {
+      for (let i = 0; i < messages.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        api.sendMessage({ body: messages[i], mentions: arraytag }, event.threadID);
       }
-      sendLoopMessages();
-    } else {
-      messages.forEach((msg, index) => {
-        setTimeout(() => {
-          api.sendMessage({ body: msg, mentions: arraytag }, event.threadID);
-        }, index * delay);
-      });
+      if (args[1] === "loop") {
+        sendMessagesLoop(); // Call the function again to restart the loop
+      }
     }
+
+    sendMessagesLoop(); // Start sending messages
   }
 };
