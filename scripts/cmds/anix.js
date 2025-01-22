@@ -5,10 +5,10 @@ module.exports = {
   config: {
     name: "anix",
     version: "1.0",
-    author: "Upol | Redwan",
+    author: "UPoL | Redwan",
     countDown: 0,
     longDescription: {
-      en: "Transform your imagination into stunning anime art."
+      en: "Generate AI images based on your prompt."
     },
     category: "image",
     role: 0,
@@ -21,10 +21,10 @@ module.exports = {
     const prompt = args.join(' ').trim();
 
     if (!prompt) {
-      return message.reply("🌌 Dive into creativity: Provide a prompt to bring your anime vision to life.");
+      return message.reply("Please provide a prompt to generate an image.");
     }
 
-    message.reply("🎨 Crafting your masterpiece... Stay tuned for the magic! ✨", async (err, info) => {
+    message.reply("Creating......!", async (err, info) => {
       if (err) return console.error(err);
 
       try {
@@ -33,12 +33,12 @@ module.exports = {
         const { combineUrl, Images } = response.data;
 
         if (!combineUrl || !Images) {
-          return message.reply("⚠️ The artistic process encountered an issue. Please refine your prompt and try again.");
+          return message.reply("Failed to generate images. Please try again.");
         }
 
         message.reply(
           {
-            body: "✨ Your anime artwork is ready! Reply with a number (1, 2, 3, or 4) to explore individual pieces.",
+            body: "✨ Image generated successfully!\nReply with a number (1, 2, 3, or 4) to view individual images.",
             attachment: await getStreamFromURL(combineUrl, "combined.png"),
           },
           (err, info) => {
@@ -48,13 +48,13 @@ module.exports = {
               commandName: this.config.name,
               messageID: info.messageID,
               author: event.senderID,
-              Images,
+              Images, 
             });
           }
         );
       } catch (error) {
         console.error(error);
-        message.reply("🔥 An unexpected error disrupted the process. Please try again.");
+        message.reply("An error occurred while generating images. Please try again.");
       }
     });
   },
@@ -64,27 +64,27 @@ module.exports = {
     const { author, Images } = Reply;
 
     if (event.senderID !== author) {
-      return message.reply("🚫 Access restricted: Only the original creator of the command can interact here.");
+      return message.reply("🚫 Only the user who initiated the command can reply.");
     }
 
     if (isNaN(userChoice) || userChoice < 1 || userChoice > 4) {
-      return message.reply("❌ Invalid choice! Reply with a number between 1 and 4 to view your selected artwork.");
+      return message.reply("❌ Invalid choice! Please reply with a number between 1 and 4.");
     }
 
     try {
       const selectedImage = Images[`image${userChoice}`];
       if (!selectedImage) {
-        return message.reply("❌ Unable to retrieve the selected artwork. Please try again.");
+        return message.reply("❌ Unable to fetch the selected image. Please try again.");
       }
 
-      const imageStream = await getStreamFromURL(selectedImage, `anime_image${userChoice}.png`);
+      const imageStream = await getStreamFromURL(selectedImage, `image${userChoice}.png`);
       message.reply({
-        body: `🌟 Here is your selected anime artwork (${userChoice}). Enjoy the creation!`,
+        body: `✅ Here is your selected image (${userChoice}).`,
         attachment: imageStream,
       });
     } catch (error) {
       console.error(error);
-      message.reply("⚠️ An error occurred while fetching your artwork. Please try again.");
+      message.reply("An error occurred while fetching the image. Please try again.");
     }
   },
 };
