@@ -1,0 +1,227 @@
+const fs = require("fs-extra");
+const axios = require("axios");
+const path = require("path");
+const { getPrefix } = global.utils;
+const { commands, aliases } = global.GoatBot;
+const commandUsage = new Map();
+const newestCommands = [];
+
+module.exports = {
+  config: {
+    name: "help",
+    version: "3.5",
+    author: "Redwan",
+    countDown: 05,
+    role: 0,
+    shortDescription: {
+      en: "View all commands and their usage.",
+    },
+    longDescription: {
+      en: "List all available commands and get detailed usage information.\n\n" +
+      "Usage:\n" +
+      "{pn}help -s <keyword> : Search for commands related to the keyword.\n" +
+      "{pn}help -top : Show the top 5 most used commands.\n" +
+      "{pn}help -new : Show the 5 newest commands added.\n" +
+      "{pn}help -c <category> : List all commands from a specific category.\n" +
+      "{pn}help -r : Show commands available for your user role.\n" +
+      "{pn}help <cmdName> : Get detailed information about a specific command.\n" +
+      "{pn}help -a <author> : List commands created by a specific author.",
+    },
+    category: "system",
+    guide: {
+      en: "{pn} / help <cmdName>\n{pn} / help -a <author>\n{pn} / help -s <keyword>\n{pn} / help -top\n{pn} / help -new\n{pn} / help -c <category>\n{pn} / help -r",
+    },
+    priority: 1,
+  },
+
+  onStart: async function ({ message, args, event, threadsData, role }) {
+    const { threadID } = event;
+    const threadData = await threadsData.get(threadID);
+    const prefix = getPrefix(threadID);
+
+    if (args[0] === "-s" && args.length > 1) {
+      const keyword = args.slice(1).join(" ").toLowerCase();
+      const matchedCommands = [];
+
+      for (const [name, cmd] of commands) {
+        if (name.toLowerCase().includes(keyword)) {
+          matchedCommands.push(name);
+        }
+      }
+
+      if (matchedCommands.length === 0) {
+        return await message.reply(`⚠️ No commands found matching the keyword: **${keyword}**.`);
+      }
+
+      let msg = `┏━━━━━━━━━━━━━━━━━┓\n     🜲  𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 𝗙𝗢𝗥 "${keyword.toUpperCase()}"  🜲\n┛━━━━━━━━━━━━━━━━━┛\n`;
+      msg += matchedCommands.map(cmd => `➤ ${cmd}`).join("\n");
+      msg += `\n\n⚡ **Total Commands:** ${matchedCommands.length}`;
+      return await message.reply(msg);
+    }
+
+    if (args[0] === "-top") {
+      const sortedCommands = [...commandUsage.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      if (sortedCommands.length === 0) {
+        return await message.reply(`⚠️ No command usage data available.`);
+      }
+
+      let msg = `♡ 𝗠𝗢𝗦𝗧 𝗨𝗦𝗘𝗗 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 ♡\n`;
+      sortedCommands.forEach(([command, count], index) => {
+        msg += `${index + 1}. ${command} (Used ${count} times)\n`;
+      });
+      return await message.reply(msg);
+    }
+
+    if (args[0] === "-new") {
+      if (newestCommands.length === 0) {
+        return await message.reply(`⚠️ No new commands available.`);
+      }
+
+      let msg = `♡ 𝗡𝗘𝗪𝗘𝗦𝗧 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 ♡\n`;
+      newestCommands.forEach(cmd => {
+        msg += `• ${cmd}\n`;
+      });
+      return await message.reply(msg);
+    }
+
+    if (args[0] === "-c" && args.length > 1) {
+      const category = args[1].toLowerCase();
+      const commandsInCategory = [];
+
+      for (const [name, cmd] of commands) {
+        if (cmd.config.category?.toLowerCase() === category) {
+          commandsInCategory.push(name);
+        }
+      }
+
+      if (commandsInCategory.length === 0) {
+        return await message.reply(`⚠️ No commands found in the category: **${category}**.`);
+      }
+
+      let msg = `┏━━━━━━━━━━━━━━━━━┓\n     🜲  𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 𝗙𝗢𝗥 "${category.toUpperCase()}"  🜲\n┛━━━━━━━━━━━━━━━━━┛\n`;
+      msg += commandsInCategory.map(cmd => `➤ ${cmd}`).join("\n");
+      return await message.reply(msg);
+    }
+
+    if (args[0] === "-r") {
+      const availableCommands = [];
+
+      for (const [name, cmd] of commands) {
+        if (cmd.config.role <= role) {
+          availableCommands.push(name);
+        }
+      }
+
+      if (availableCommands.length === 0) {
+        return await message.reply(`⚠️ You have no commands available based on your role.`);
+      }
+
+      let msg = `┏━━━━━━━━━━━━━━━━━┓\n     🜲  𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 𝗙𝗢𝗥 𝗬𝗢𝗨 🜲\n┛━━━━━━━━━━━━━━━━━┛\n`;
+      msg += availableCommands.map(cmd => `➤ ${cmd}`).join("\n");
+      return await message.reply(msg);
+    }
+
+    if (args[0] === "-a") {
+      if (!args[1]) return message.reply("⚠️ Please provide an author name to search for.");
+      return sendCommandsByAuthor(message, args.slice(1).join(" "), prefix);
+    }
+
+    if (args.length === 0) {
+      const categories = {};
+      let msg = `┏━━━━━━━━━━━━━━━━━┓\n     🜲  𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗟𝗜𝗦𝗧  🜲\n┛━━━━━━━━━━━━━━━━━┛`;
+
+      for (const [name, value] of commands) {
+        if (value.config.role > 1 && role < value.config.role) continue;
+        const category = value.config.category || "Uncategorized";
+        categories[category] = categories[category] || { commands: [] };
+        categories[category].commands.push(name);
+      }
+
+      Object.keys(categories).forEach((category) => {
+        if (category !== "info") {
+          msg += `\n\n◈━━ 『  ${category.toUpperCase()}  』━━◈`;
+
+          const names = categories[category].commands.sort();
+          for (let i = 0; i < names.length; i += 3) {
+            const cmds = names.slice(i, i + 3).map((item) => `➤ ${item}`);
+            msg += `\n${cmds.join(" ".repeat(Math.max(1, 10 - cmds.join("").length)))}`;
+          }
+
+          msg += `\n◈━━━━━━━━━━━━━━━━◈`;
+        }
+      });
+
+      const totalCommands = commands.size;
+      msg += `\n\n┏━━━━━━━━━━━━━━━━━┓\n`;
+      msg += `┃ ⚡ 𝙏𝙤𝙩𝙖𝙡 𝘾𝙤𝙢𝙢𝙖𝙣𝙙𝙨: [ ${totalCommands} ]\n`;
+      msg += `┃ ⚡ 𝙏𝙮𝙥𝙚 [ ${prefix}help <cmd> ] 𝙩𝙤 𝙜𝙚𝙩 𝙙𝙚𝙩𝙖𝙞𝙡𝙨.\n`;
+      msg += `┃ ⚡ 𝙏𝙮𝙥𝙚 [ ${prefix}help -a <author> ] 𝙩𝙤 𝙡𝙞𝙨𝙩 𝙩𝙝𝙚𝙞𝙧 𝙘𝙤𝙢𝙢𝙖𝙣𝙙𝙨.\n`;
+      msg += `┛━━━━━━━━━━━━━━━━━┛`;
+
+      await message.reply(msg);
+    } else {
+      const commandName = args[0].toLowerCase();
+      return sendCommandDetails(message, commandName, prefix);
+    }
+  },
+};
+
+async function sendCommandDetails(message, commandName, prefix) {
+  const command = commands.get(commandName) || commands.get(aliases.get(commandName));
+
+  if (!command) {
+    const suggestions = [...commands.keys()]
+      .filter(cmd => cmd.includes(commandName))
+      .slice(0, 5)
+      .map(cmd => `♡ ${cmd}`)
+      .join("\n");
+
+    return message.reply(`⚠️ Command **"${commandName}"** not found.\n${suggestions ? "Did you mean?\n" + suggestions : ""}`);
+  }
+
+  const { config } = command;
+  const roleText = roleTextToString(config.role);
+  const usage = config.guide?.en.replace(/{pn}/g, prefix).replace(/{n}/g, config.name);
+
+  const response = `╔═══════╗\n ♡ 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗜𝗻𝗳𝗼 ♡ \n╚═══════╝\n
+♡ 𝗡𝗮𝗺𝗲: ${config.name}
+♡ 𝗗𝗲𝘀𝗰𝗿𝗶𝗽𝘁𝗶𝗼𝗻: ${config.longDescription?.en || "No description available."}
+♡ 𝗖𝗮𝘁𝗲𝗴𝗼𝗿𝘆: ${config.category || "Other"}
+♡ 𝗩𝗲𝗿𝘀𝗶𝗼𝗻: ${config.version || "1.0"}
+♡ 𝗥𝗼𝗹𝗲: ${roleText}
+♡ 𝗖𝗼𝗼𝗹𝗱𝗼𝘄𝗻: ${config.countDown || 1}s
+♡ 𝗔𝘂𝘁𝗵𝗼𝗿: ${config.author || "Unknown"}
+♡ 𝗨𝘀𝗮𝗴𝗲: ${usage}
+╰──────────────◊`;
+
+  await message.reply(response);
+}
+
+function roleTextToString(roleText) {
+  switch (roleText) {
+    case 0:
+      return "0 (All users)";
+    case 1:
+      return "1 (Group administrators)";
+    case 2:
+      return "2 (Admin bot)";
+    default:
+      return "Unknown role";
+  }
+}
+
+// Function to find commands by author
+async function sendCommandsByAuthor(message, authorName, prefix) {
+  const foundCommands = [...commands.values()]
+    .filter(cmd => cmd.config.author?.toLowerCase() === authorName.toLowerCase())
+    .map(cmd => `♡ ${cmd.config.name}`)
+    .join("\n");
+
+  if (!foundCommands) {
+    return message.reply(`⚠️ No commands found by the author **"${authorName}"**.`);
+  }
+
+  let msg = `┏━━━━━━━━━━━━━━━━━┓\n     🜲  𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 𝗙𝗢𝗥 "${authorName}" 🜲\n┛━━━━━━━━━━━━━━━━━┛\n`;
+  msg += foundCommands;
+  return message.reply(msg);
+}
