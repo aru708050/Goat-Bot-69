@@ -41,7 +41,7 @@ module.exports = {
 
 async function generateImage(prompt, message, api, event, waitMessageID, userId) {
   try {
-    const apiUrl = `https://renzsuperb.onrender.com/api/fluxpro-ultra-raw?prompt=${encodeURIComponent(prompt)}`;
+    const apiUrl = `https://renzsuperb.onrender.com/api/fluxultra?prompt=${encodeURIComponent(prompt)}`;
     const response = await axios.get(apiUrl, { responseType: "arraybuffer" });
 
     if (!response.data || response.data.length === 0) {
