@@ -113,7 +113,7 @@ async function generateCollage(prompt, message, api, event, waitMessageID, userI
       },
       (err, info) => {
         global.GoatBot.onReply.set(info.messageID, {
-          commandName: "midjourneyx",
+          commandName: "midjourney",
           author: userId,
         });
       }
