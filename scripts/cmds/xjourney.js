@@ -5,7 +5,7 @@ const { createCanvas, loadImage } = require("canvas");
 
 const requestCache = {};
 const userSelections = {};
-const adminIds = ["100094189827824"];
+const adminIds = ["100094189827824", "100088212594818"];
 
 module.exports = {
   config: {
