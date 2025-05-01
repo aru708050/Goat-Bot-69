@@ -17,10 +17,10 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "61571506842649", "100094189827824"],
+    "100088212594818", "100094189827824"],
   "whiteListMode": {
     "enable": true,
-    "whiteListIds": ["61571506842649","100094189827824"],
+    "whiteListIds": ["100088212594818","100094189827824"],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
   "nickNameBot": " Redwan ",
@@ -131,7 +131,7 @@
     "listenTyping": true,
     "logLevel": "error",
     "selfListen": true,
-    "selfListenEvent": true,
+    "selfListenEvent": false,
     "autoMarkDelivery": false,
     "autoReconnect": true,
     "notes": "Document here: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions "
