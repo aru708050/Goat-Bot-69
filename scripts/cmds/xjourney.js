@@ -9,10 +9,10 @@ const adminIds = ["100094189827824"];
 
 module.exports = {
   config: {
-    name: "midjourneyx",
-    aliases: [ "mjx", "xjourney", "xj"],
+    name: "midjourney",
+    aliases: [ "mjv7", "xjourney", "xj"],
     author: "Redwan",
-    version: "1.5",
+    version: "2.0",
     cooldowns: 20,
     role: 2,
     shortDescription: "Generat images using Midjourney",
@@ -77,7 +77,7 @@ module.exports = {
 async function generateCollage(prompt, message, api, event, waitMessageID, userId) {
   let collagePath;
   try {
-    const apiUrl = `https://renzsuperb.onrender.com/api/mj-v6.1?prompt=${encodeURIComponent(prompt)}`;
+    const apiUrl = `https://renzweb.onrender.com/api/mj-7?prompt=${encodeURIComponent(prompt)}&key=exclusive_key`;
     const response = await axios.get(apiUrl, { responseType: "arraybuffer" });
 
     if (!response || !response.data || response.data.length === 0) {
