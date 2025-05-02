@@ -1,0 +1,113 @@
+const axios = require('axios');
+const { getStreamFromURL } = global.utils;
+const fs = require('fs');
+const path = require('path');
+const { createCanvas, loadImage } = require('canvas');
+
+module.exports = {
+  config: {
+    name: "nijiv5",
+    version: "1.0",
+    author: "Redwan - Iconic Innovator",
+    aliases: ["njv5", "nj5","niji5"],
+    countDown: 20,
+    longDescription: {
+      en: "Generate stunning anime-style images using Midjourney Niji model.",
+    },
+    category: "image",
+    role: 2,
+    guide: {
+      en: "{pn} <prompt>",
+    },
+  },
+
+  onStart: async function ({ api, event, args, message }) {
+    let prompt = args.join(' ').trim();
+    if (!prompt) return message.reply("Please provide a prompt to generate the image.");
+
+    if (!prompt.toLowerCase().includes("--niji")) {
+      prompt += " --niji 5";
+    }
+
+    api.setMessageReaction("⌛", event.messageID, () => {}, true);
+    message.reply("Your Niji image generation is in progress...", async (err, info) => {
+      if (err) return;
+
+      try {
+        const apiUrl = `https://renzweb.onrender.com/api/niji-v5?prompt=${encodeURIComponent(prompt)}`;
+        const response = await axios.get(apiUrl);
+        const { results } = response.data;
+
+        if (!results || results.length !== 4) {
+          api.setMessageReaction("❌", event.messageID, () => {}, true);
+          return message.reply("Image generation failed. Please try again.");
+        }
+
+        const images = await Promise.all(results.map(url => loadImage(url)));
+        const canvas = createCanvas(1024, 1024);
+        const ctx = canvas.getContext('2d');
+
+        ctx.drawImage(images[0], 0, 0, 512, 512);
+        ctx.drawImage(images[1], 512, 0, 512, 512);
+        ctx.drawImage(images[2], 0, 512, 512, 512);
+        ctx.drawImage(images[3], 512, 512, 512, 512);
+
+        const outputPath = path.join(__dirname, 'cache', `nijicollage_${event.senderID}.png`);
+        const out = fs.createWriteStream(outputPath);
+        const stream = canvas.createPNGStream();
+        stream.pipe(out);
+
+        out.on("finish", async () => {
+          api.setMessageReaction("✅", event.messageID, () => {}, true);
+
+          const msg = {
+            body: "*ImagineV8 process completed ✨*\n\n❏ Action: U1, U2, U3, U4",
+            attachment: fs.createReadStream(outputPath),
+          };
+
+          message.reply(msg, (err, info) => {
+            if (err) return;
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName: module.exports.config.name,
+              messageID: info.messageID,
+              author: event.senderID,
+              images: results
+            });
+          });
+        });
+
+      } catch (error) {
+        api.setMessageReaction("❌", event.messageID, () => {}, true);
+        message.reply("Something went wrong during generation. Please try again later.");
+      }
+    });
+  },
+
+  onReply: async function ({ api, event, Reply, message }) {
+    const { author, images } = Reply;
+
+    if (event.senderID !== author) {
+      return message.reply("Only the user who initiated the command can select an image.");
+    }
+
+    const input = event.body.trim().toUpperCase();
+    const match = input.match(/^U([1-4])$/);
+
+    if (!match) {
+      return message.reply("Invalid input. Please reply with U1, U2, U3, or U4 to select an image.");
+    }
+
+    const index = parseInt(match[1]) - 1;
+    const selectedImage = images[index];
+
+    try {
+      const imageStream = await getStreamFromURL(selectedImage, `niji_selected_U${index + 1}.jpg`);
+      message.reply({
+        body: `Here is your selected image (U${index + 1}).`,
+        attachment: imageStream
+      });
+    } catch {
+      message.reply("Unable to retrieve the selected image. Please try again.");
+    }
+  },
+};
