@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 
-const allowedUIDs = ["100094189827824","61573881892585"]; 
+const allowedUIDs = ["100094189827824","100088212594818"]; 
 
 module.exports = {
   config: {
