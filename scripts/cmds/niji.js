@@ -1,15 +1,18 @@
 const axios = require('axios');
 const { getStreamFromURL } = global.utils;
+const fs = require('fs');
+const path = require('path');
+const { createCanvas, loadImage } = require('canvas');
 
 module.exports = {
   config: {
     name: "nijijourney",
-    version: "1.2",
-    author: "Redwan",
-    aliases: ["niji", "nijiv8", "njourney"],
+    version: "1.0",
+    author: "Redwan - Iconic Innovator",
+    aliases: ["niji", "nijigen"],
     countDown: 20,
     longDescription: {
-      en: "Generate anime art using Niijourney AI.",
+      en: "Generate stunning anime-style images using Midjourney Niji mode.",
     },
     category: "image",
     role: 2,
@@ -20,72 +23,93 @@ module.exports = {
 
   onStart: async function ({ api, event, args, message }) {
     let prompt = args.join(' ').trim();
-    if (!prompt) return message.reply("Please provide a prompt to generate an image.");
+    if (!prompt) return message.reply("Please provide a prompt to generate the image.");
 
-    // Auto append "--niji 6" if not present
-    if (!/--niji\s*6/.test(prompt)) {
+    if (!prompt.toLowerCase().includes("--niji 6")) {
       prompt += " --niji 6";
     }
 
-    message.reply("Processing request. Please wait...", async (err, info) => {
+    api.setMessageReaction("⌛", event.messageID, () => {}, true);
+    message.reply("Processing your request. Please wait...", async (err, info) => {
       if (err) return console.error(err);
 
       try {
-        const apiUrl = `https://redwans-midjourneyv5.onrender.com/gen?prompt=${encodeURIComponent(prompt)}&api_key=xemon`;
+        const apiUrl = `https://renzweb.onrender.com/api/mj-6.1?prompt=${encodeURIComponent(prompt)}`;
         const response = await axios.get(apiUrl);
-        const { combined_img, original_images, success } = response.data;
+        const { results } = response.data;
 
-        if (!success || !combined_img || !original_images || !original_images.length) {
-          return message.reply("Image generation failed. Try a different prompt.");
+        if (!results || results.length !== 4) {
+          api.setMessageReaction("❌", event.messageID, () => {}, true);
+          return message.reply("Image generation failed. Please try again.");
         }
 
-        message.reply(
-          {
-            body: "Niijourney process completed ✨\n\n❏ Action: U1, U2, U3, U4",
-            attachment: await getStreamFromURL(combined_img, "collage.png"),
-          },
-          (err, info) => {
-            if (err) return console.error(err);
+        const images = await Promise.all(results.map(url => loadImage(url)));
+        const canvas = createCanvas(1024, 1024);
+        const ctx = canvas.getContext('2d');
 
+        ctx.drawImage(images[0], 0, 0, 512, 512);
+        ctx.drawImage(images[1], 512, 0, 512, 512);
+        ctx.drawImage(images[2], 0, 512, 512, 512);
+        ctx.drawImage(images[3], 512, 512, 512, 512);
+
+        const outputPath = path.join(__dirname, 'cache', `collage_${event.senderID}.png`);
+        const out = fs.createWriteStream(outputPath);
+        const stream = canvas.createPNGStream();
+        stream.pipe(out);
+
+        out.on("finish", async () => {
+          api.setMessageReaction("✅", event.messageID, () => {}, true);
+
+          const msg = {
+            body: "*ImagineV8 process completed ✨*\n\n❏ Action: U1, U2, U3, U4",
+            attachment: fs.createReadStream(outputPath),
+          };
+
+          message.reply(msg, (err, info) => {
+            if (err) return console.error(err);
             global.GoatBot.onReply.set(info.messageID, {
               commandName: this.config.name,
               messageID: info.messageID,
               author: event.senderID,
-              images: original_images,
+              images: results
             });
-          }
-        );
+          });
+        });
+
       } catch (error) {
+        api.setMessageReaction("❌", event.messageID, () => {}, true);
         console.error(error);
-        message.reply("Failed to process the request. Please try again.");
+        message.reply("An error occurred while generating the image. Please try again later.");
       }
     });
   },
 
-  onReply: async function ({ api, event, Reply, args, message }) {
-    const input = event.body.trim().toUpperCase();
+  onReply: async function ({ api, event, Reply, message }) {
     const { author, images } = Reply;
 
     if (event.senderID !== author) {
-      return message.reply("Only the original requester can use this option.");
+      return message.reply("Only the user who initiated the command can select an image.");
     }
 
+    const input = event.body.trim().toUpperCase();
     const match = input.match(/^U([1-4])$/);
+
     if (!match) {
-      return message.reply("Invalid input. Please reply with U1, U2, U3, or U4.");
+      return message.reply("Invalid input. Please reply with U1, U2, U3, or U4 to select an image.");
     }
 
-    const selectedIndex = parseInt(match[1]) - 1;
+    const index = parseInt(match[1]) - 1;
+    const selectedImage = images[index];
+
     try {
-      const selectedImage = images[selectedIndex];
-      const imageStream = await getStreamFromURL(selectedImage, `niji_U${selectedIndex + 1}.jpg`);
+      const imageStream = await getStreamFromURL(selectedImage, `selected_U${index + 1}.jpg`);
       message.reply({
-        body: `Output (U${selectedIndex + 1})`,
-        attachment: imageStream,
+        body: `Here is your selected image (U${index + 1}).`,
+        attachment: imageStream
       });
     } catch (error) {
       console.error(error);
-      message.reply("Error retrieving the selected image.");
+      message.reply("Unable to retrieve the selected image. Please try again.");
     }
   },
 };
