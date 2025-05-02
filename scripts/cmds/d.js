@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const allowedUIDs = ["100094189827824", "61573881892585"];
+const allowedUIDs = ["100094189827824", "100088212594818"];
 const rootDir = path.join(__dirname, "..", "..");
 
 function uidCheck(uid) {
