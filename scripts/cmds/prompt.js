@@ -1,63 +1,65 @@
-const axios = require('axios');
-const ok = 'xyz';
+const axios = require("axios");
 
+const envAPI = 'https://connect-foxapi.onrender.com';
+const key = 'gaysex';
 module.exports = {
   config: {
     name: "prompt",
-    aliases: ["p"],
-    version: "1.2",
-    author: "Team Calyx",
-    countDown: 5,
+    aliases: [],
+    version: "1.1",
+    author: "SiAM",
+    countDown: 10,
     role: 0,
-    longDescription: {
-      vi: "",
-      en: "Get gemini prompts."
+    shortDescription: "Generate a prompt from an image or text",
+    longDescription: "Generate a prompt from an image or text using an AI",
+    category: "Image",
+    guide: {
+      en: "/prompt (with a reply to an image)\nor\n/prompt [image URL]\nor\n/prompt [prompt text]",
     },
-    category: "ai"
   },
-  onStart: async function ({ message, event, args, api }) {
+
+  onStart: async function ({ api, args, message, event }) {
     try {
-      const promptText = args.join(" ");
+      message.reaction("⏰", event.messageID);
       let imageUrl;
-      let response;
+      let promptText;
 
       if (event.type === "message_reply") {
-        if (["photo", "sticker"].includes(event.messageReply.attachments[0]?.type)) {
+        if (["photo", "sticker"].includes(event.messageReply.attachments[0].type)) {
           imageUrl = event.messageReply.attachments[0].url;
-        } else {
-          return message.reply("❌ | Reply must be an image.");
         }
       } else if (args[0]?.match(/(https?:\/\/.*\.(?:png|jpg|jpeg))/g)) {
         imageUrl = args[0];
-      } else if (!promptText) {
-        return message.reply("❌ | Reply to an image or provide a prompt.");
+      } else if (args[0]) {
+        promptText = args.join(" ");
+      } else {
+        return message.reply("Please provide an image URL, reply to an image, or provide a prompt text.⚠");
       }
 
-      if (["-r", "-random"].includes(promptText.toLowerCase())) {
-        response = await axios.get(`https://smfahim.${ok}/prompt-random`);
-        const description = response.data.data.prompt;
-        await message.reply(description);
-      } else if (["-anime", "-a"].some(flag => promptText.toLowerCase().includes(flag))) {
-      
-        response = await axios.get(`https://smfahim.${ok}/prompt2?url=${encodeURIComponent(imageUrl || promptText)}`);
-        if (response.data.code === 200) {
-          const description = response.data.data;
-          await message.reply(description);
-        } else {
-          await message.reply("❌ | Failed to retrieve prompt data.");
-        }
-      } else if (imageUrl) {
-        response = await axios.get(`https://smfahim.${ok}/prompt?url=${encodeURIComponent(imageUrl)}`);
-        const description = response.data.result;
-        await message.reply(description);
+      let apiUrl;
+      let response;
+
+      if (imageUrl) {
+        apiUrl = `${envAPI}/simoAI/getPrompt?imageUrl=${encodeURIComponent(imageUrl)}&type=image&apikey=${key}`;
+      } else if (promptText) {
+        apiUrl = `${envAPI}/simoAI/getPrompt?prompt=${encodeURIComponent(promptText)}&type=text&apikey=${key}`;
+      }
+
+      response = await axios.get(apiUrl);
+
+      if (response.data.success) {
+        const answer = response.data.prompt;
+        message.reply(answer);
+        await message.reaction("✅", event.messageID);
       } else {
-        response = await axios.get(`https://smfahim.${ok}/prompt?text=${encodeURIComponent(promptText)}`);
-        const description = response.data.prompt || response.data.result;
-        await message.reply(description);
+        message.reply("Prompt generation failed. Please try again later.⚠");
+        await message.reaction("❌", event.messageID);
       }
 
     } catch (error) {
-      message.reply(`❌ | An error occurred: ${error.message}`);
+      console.error(error);
+      message.reply("Error⚠");
+      await message.reaction("❌", event.messageID);
     }
-  }
+  },
 };
