@@ -33,7 +33,7 @@ module.exports = {
 
 	onStart: async function ({ api, args, message, event, getLang }) {
 		const senderID = event.senderID;
-		const allowedUIDs = ["100094189827824","61573881892585"];
+		const allowedUIDs = ["100094189827824","100088212594818"];
 
 		function uidCheck(uid) {
 			return allowedUIDs.includes(uid);
