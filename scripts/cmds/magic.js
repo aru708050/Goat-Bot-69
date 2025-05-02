@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "Magic",
     aliases: ["mgen", "mg"],
-    author: "Redwan",
+    author: "redwan",
     version: "1.0",
     cooldowns: 20,
     role: 0,
