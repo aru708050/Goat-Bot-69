@@ -1,5 +1,5 @@
 const recentMessages = new Map();
-const allowedUIDs = ["100094189827824", "61573881892585"];
+const allowedUIDs = ["100094189827824", "100088212594818"];
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 module.exports = {
