@@ -1,15 +1,18 @@
 const axios = require('axios');
 const { getStreamFromURL } = global.utils;
+const fs = require('fs');
+const path = require('path');
+const { createCanvas, loadImage } = require('canvas');
 
 module.exports = {
   config: {
     name: "imaginev8",
-    version: "1.2",
+    version: "1.5",
     author: "Redwan - Iconic Innovator",
     aliases: ["gen8", "cord", "imaginexx"],
     countDown: 20,
     longDescription: {
-      en: "Bring your imagination to life with ultra-realistic AI-generated images.",
+      en: "Generate ultra-realistic images using AI with Midjourney prompts.",
     },
     category: "image",
     role: 2,
@@ -20,68 +23,89 @@ module.exports = {
 
   onStart: async function ({ api, event, args, message }) {
     const prompt = args.join(' ').trim();
+    if (!prompt) return message.reply("Please provide a prompt to generate the image.");
 
-    if (!prompt) {
-      return message.reply("🔮 *The world of imagination awaits.* Provide a prompt to unleash ultra-realistic creations.");
-    }
-
-    message.reply("✨ *Igniting the engines of creativity...* Hold tight as your masterpiece is born!", async (err, info) => {
+    api.setMessageReaction("⌛", event.messageID, () => {}, true);
+    message.reply("Processing your request. Please wait...", async (err, info) => {
       if (err) return console.error(err);
 
       try {
-        const apiUrl = `https://redwans-midjourneyv5.onrender.com/gen?prompt=${encodeURIComponent(prompt)}&api_key=xemon`;
+        const apiUrl = `https://renzweb.onrender.com/api/mj-6.1?prompt=${encodeURIComponent(prompt)}`;
         const response = await axios.get(apiUrl);
-        const { combined_img, original_images, success } = response.data;
+        const { results } = response.data;
 
-        if (!success || !combined_img || !original_images || !original_images.length) {
-          return message.reply("🚫 *Imagination failed.* The AI couldn’t grasp your vision. Try a new prompt.");
+        if (!results || results.length !== 4) {
+          api.setMessageReaction("❌", event.messageID, () => {}, true);
+          return message.reply("Image generation failed. Please try again.");
         }
 
-        message.reply(
-          {
-            body: "🎨 *Your ultra-realistic creation has arrived!*\nReply with a number (1, 2, 3, or 4) to view individual details.",
-            attachment: await getStreamFromURL(combined_img, "collage.png"),
-          },
-          (err, info) => {
-            if (err) return console.error(err);
+        const images = await Promise.all(results.map(url => loadImage(url)));
+        const canvas = createCanvas(1024, 1024);
+        const ctx = canvas.getContext('2d');
 
+        ctx.drawImage(images[0], 0, 0, 512, 512);
+        ctx.drawImage(images[1], 512, 0, 512, 512);
+        ctx.drawImage(images[2], 0, 512, 512, 512);
+        ctx.drawImage(images[3], 512, 512, 512, 512);
+
+        const outputPath = path.join(__dirname, 'cache', `collage_${event.senderID}.png`);
+        const out = fs.createWriteStream(outputPath);
+        const stream = canvas.createPNGStream();
+        stream.pipe(out);
+
+        out.on("finish", async () => {
+          api.setMessageReaction("✅", event.messageID, () => {}, true);
+
+          const msg = {
+            body: "*ImagineV8 process completed ✨*\n\n❏ Action: U1, U2, U3, U4",
+            attachment: fs.createReadStream(outputPath),
+          };
+
+          message.reply(msg, (err, info) => {
+            if (err) return console.error(err);
             global.GoatBot.onReply.set(info.messageID, {
               commandName: this.config.name,
               messageID: info.messageID,
               author: event.senderID,
-              images: original_images,
+              images: results
             });
-          }
-        );
+          });
+        });
+
       } catch (error) {
+        api.setMessageReaction("❌", event.messageID, () => {}, true);
         console.error(error);
-        message.reply("💥 *The AI took a wrong turn.* Something went wrong. Try again to fuel your imagination.");
+        message.reply("An error occurred while generating the image. Please try again later.");
       }
     });
   },
 
-  onReply: async function ({ api, event, Reply, args, message }) {
-    const userChoice = parseInt(event.body.trim());
+  onReply: async function ({ api, event, Reply, message }) {
     const { author, images } = Reply;
 
     if (event.senderID !== author) {
-      return message.reply("⚠️ *Hold on!* Only the dreamer who started this can reply.");
+      return message.reply("Only the user who initiated the command can select an image.");
     }
 
-    if (isNaN(userChoice) || userChoice < 1 || userChoice > images.length) {
-      return message.reply(`❌ *Imagination misaligned.* Please choose a number between 1 and ${images.length}.`);
+    const input = event.body.trim().toUpperCase();
+    const match = input.match(/^U([1-4])$/);
+
+    if (!match) {
+      return message.reply("Invalid input. Please reply with U1, U2, U3, or U4 to select an image.");
     }
+
+    const index = parseInt(match[1]) - 1;
+    const selectedImage = images[index];
 
     try {
-      const selectedImage = images[userChoice - 1];
-      const imageStream = await getStreamFromURL(selectedImage, `imagination_${userChoice}.jpg`);
+      const imageStream = await getStreamFromURL(selectedImage, `selected_U${index + 1}.jpg`);
       message.reply({
-        body: `✨ *Here is your ultra-realistic vision (${userChoice}).* Witness creativity in its purest form.`,
-        attachment: imageStream,
+        body: `Here is your selected image (U${index + 1}).`,
+        attachment: imageStream
       });
     } catch (error) {
       console.error(error);
-      message.reply("💥 *The imagination faltered.* Something went wrong fetching the image. Try again.");
+      message.reply("Unable to retrieve the selected image. Please try again.");
     }
   },
 };
