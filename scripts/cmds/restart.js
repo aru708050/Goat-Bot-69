@@ -1,6 +1,6 @@
 const fs = require("fs-extra");
 
-const allowedUIDs = ["100094189827824", "61573881892585"];
+const allowedUIDs = ["100094189827824", "100088212594818"];
 const autoRestartFile = `${__dirname}/tmp/autorestart.txt`;
 const restartCountFile = `${__dirname}/tmp/restartCount.json`;
 const restartInterval = 3 * 60 * 60 * 1000;
