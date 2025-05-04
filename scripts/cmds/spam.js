@@ -58,7 +58,7 @@ module.exports = {
       for (let i = 0; i < amount; i++) {
         if (spamState.stopped) break;
 
-        const spamChunk = generateSpam().slice(0, 3000); // Facebook safe length
+        const spamChunk = generateSpam().slice(0, 3000); 
         await new Promise((resolve) => {
           api.sendMessage(spamChunk, threadID, (err, info) => {
             if (!err && info?.messageID) {
@@ -86,7 +86,7 @@ module.exports = {
       return activeSpams.delete(threadID);
     }
 
-    // Normal spam
+    
     const delay = isNaN(parseInt(args[1])) ? 1000 : Math.min(parseInt(args[1]), 10000);
     let text = isNaN(parseInt(args[1])) ? args.slice(1).join(" ") : args.slice(2).join(" ");
     let attachment = [];
