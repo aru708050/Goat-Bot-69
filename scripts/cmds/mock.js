@@ -5,15 +5,15 @@ module.exports = {
   config: {
     name: "mock",
     aliases: [],
-    version: "1.1",
+    version: "1.2",
     author: "Redwan",
     countDown: 3,
     role: 1,
     shortDescription: {
-      en: "Enable mock on a user"
+      en: "Mock a user globally"
     },
     longDescription: {
-      en: "Mock a user globally. The bot will reply to them with mocking messages everywhere."
+      en: "The bot will mock the user everywhere when they chat"
     },
     category: "fun",
     guide: {
@@ -25,10 +25,10 @@ module.exports = {
     const input = args.join(" ").trim().toLowerCase();
 
     if (input === "list") {
-      const keys = Object.keys(mockedUsers);
-      if (keys.length === 0) return message.reply("No users are currently being mocked.");
-      const listText = keys.map((uid, index) => `${index + 1}. UID: ${uid}`).join("\n");
-      return message.reply(`List of mocked users:\n${listText}`);
+      const activeMocks = Object.keys(mockedUsers);
+      if (activeMocks.length === 0) return message.reply("No users are currently being mocked.");
+      const formatted = activeMocks.map((uid, i) => `${i + 1}. UID: ${uid}`).join("\n");
+      return message.reply(`Mocked Users:\n${formatted}`);
     }
 
     const isOff = input.startsWith("off");
@@ -61,7 +61,7 @@ module.exports = {
 
     setTimeout(async () => {
       try {
-        const res = await axios.get(`https://global-redwans-rest-apis.onrender.com/api/mock`, {
+        const res = await axios.get("https://global-redwans-rest-apis.onrender.com/api/mock", {
           params: {
             text: body,
             uid: senderID
