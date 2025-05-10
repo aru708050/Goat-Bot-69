@@ -30,7 +30,8 @@ module.exports = {
       if (err) return console.error(err);
 
       try {
-        const apiUrl = `https://renzweb.onrender.com/api/mj-proxy-pub?prompt=${encodeURIComponent(prompt)}`;
+        const apiKey = "gaywan_api"; // You can store this in env later
+        const apiUrl = `https://renzweb.onrender.com/api/mj-proxy-pub?prompt=${encodeURIComponent(prompt)}&key=${apiKey}`;
         const response = await axios.get(apiUrl);
         const { message: statusMsg, results } = response.data;
 
@@ -72,7 +73,7 @@ module.exports = {
             });
           });
 
-          // Cleanup
+          // Auto cleanup after 1 minute
           setTimeout(() => fs.unlink(outputPath, () => {}), 60 * 1000);
         });
 
