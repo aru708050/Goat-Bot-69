@@ -30,7 +30,7 @@ module.exports = {
       if (err) return console.error(err);
 
       try {
-        const apiUrl = `https://renzweb.onrender.com/api/mj-6.1?prompt=${encodeURIComponent(prompt)}`;
+        const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mj-6.1?prompt=${encodeURIComponent(prompt)}`;
         const response = await axios.get(apiUrl);
         const { results } = response.data;
 
