@@ -77,7 +77,7 @@ module.exports = {
 async function generateCollage(prompt, message, api, event, waitMessageID, userId) {
   let collagePath;
   try {
-    const apiUrl = `https://renzweb.onrender.com/api/mj-proxy-2?prompt=${encodeURIComponent(prompt)}&key=exclusive_key`;
+    const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mj-proxy-2?prompt=${encodeURIComponent(prompt)}&key=exclusive_key`;
     const response = await axios.get(apiUrl, { responseType: "arraybuffer" });
 
     if (!response || !response.data || response.data.length === 0) {
