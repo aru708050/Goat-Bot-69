@@ -31,7 +31,7 @@ module.exports = {
 
       try {
         const apiKey = "gaywan_api"; // You can store this in env later
-        const apiUrl = `https://renzweb.onrender.com/api/mj-proxy-pub?prompt=${encodeURIComponent(prompt)}&key=${apiKey}`;
+        const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mj-proxy-pub?prompt=${encodeURIComponent(prompt)}&key=${apiKey}`;
         const response = await axios.get(apiUrl);
         const { message: statusMsg, results } = response.data;
 
