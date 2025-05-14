@@ -33,7 +33,7 @@ module.exports = {
       return message.reply("❌ | You can generate a maximum of 2 images every 10 minutes. Please try again later.");
     }
 
-    const waitMessage = await message.reply("✨ | Initiating MidJourney's magical process... Please be patient, this might take a moment.");
+    const waitMessage = await message.reply("✨ | Initiating MidJourney's process... Please be patient, this might take a moment.....⏰✨");
     await generateCollage(prompt, message, api, event, waitMessage.messageID, userId);
   },
 
@@ -154,7 +154,7 @@ async function upscaleAndSendImage(collagePath, selection, event, api, waitMessa
     await api.unsendMessage(waitMessageID);
     api.sendMessage(
       {
-        body: `✨ | Here is your upscaled image: ${selection}`,
+        body: `✨ | Here is your midjourney generated image: ${selection}`,
         attachment: stream,
       },
       event.threadID,
