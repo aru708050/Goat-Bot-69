@@ -30,16 +30,33 @@ module.exports = {
       if (err) return console.error(err);
 
       try {
-        const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mj-6.1?prompt=${encodeURIComponent(prompt)}`;
+        const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mjproxy5?prompt=${encodeURIComponent(prompt)}&key=exclusive_key`;
         const response = await axios.get(apiUrl);
-        const { results } = response.data;
+        const { id, status, pollingUrl } = response.data;
 
-        if (!results || results.length !== 4) {
+        if (status !== 'processing') {
+          return message.reply("Failed to initiate image generation. Please try again.");
+        }
+
+        let pollStatus = 'processing';
+        let imageUrls = [];
+        while (pollStatus === 'processing') {
+          const pollResponse = await axios.get(pollingUrl);
+          pollStatus = pollResponse.data.status;
+
+          if (pollStatus === 'completed') {
+            imageUrls = pollResponse.data.urls;
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 5000));
+          }
+        }
+
+        if (!imageUrls || imageUrls.length !== 4) {
           api.setMessageReaction("❌", event.messageID, () => {}, true);
           return message.reply("Image generation failed. Please try again.");
         }
 
-        const images = await Promise.all(results.map(url => loadImage(url)));
+        const images = await Promise.all(imageUrls.map(url => loadImage(url)));
         const canvas = createCanvas(1024, 1024);
         const ctx = canvas.getContext('2d');
 
@@ -57,7 +74,7 @@ module.exports = {
           api.setMessageReaction("✅", event.messageID, () => {}, true);
 
           const msg = {
-            body: "*ImagineV8 process completed ✨*\n\n❏ Action: U1, U2, U3, U4",
+            body: "ImagineV8 process completed ✨\n\n❏ Action: U1, U2, U3, U4",
             attachment: fs.createReadStream(outputPath),
           };
 
@@ -67,7 +84,7 @@ module.exports = {
               commandName: this.config.name,
               messageID: info.messageID,
               author: event.senderID,
-              images: results
+              images: imageUrls,
             });
           });
         });
@@ -101,7 +118,7 @@ module.exports = {
       const imageStream = await getStreamFromURL(selectedImage, `selected_U${index + 1}.jpg`);
       message.reply({
         body: `Here is your selected image (U${index + 1}).`,
-        attachment: imageStream
+        attachment: imageStream,
       });
     } catch (error) {
       console.error(error);
