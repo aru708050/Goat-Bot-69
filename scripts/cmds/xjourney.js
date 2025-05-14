@@ -8,237 +8,189 @@ const userSelections = {};
 const adminIds = ["100094189827824", "100088212594818"];
 
 module.exports = {
-  config: {
-    name: "midjourney",
-    aliases: [ "mjv7", "xjourney", "xj"],
-    author: "Redwan",
-    version: "2.0",
-    cooldowns: 20,
-    role: 2,
-    shortDescription: "Generat images using Midjourney",
-    longDescription: "",
-    category: "ai",
-    guide: "{p}mjx <prompt>",
-  },
+  config: {
+    name: "midjourney",
+    aliases: ["mjv7", "xjourney", "xj"],
+    author: "Redwan",
+    version: "2.0",
+    cooldowns: 20,
+    role: 0,
+    shortDescription: "Generat images using Midjourney",
+    longDescription: "",
+    category: "ai",
+    guide: "{p}mjx <prompt>",
+  },
 
-  onStart: async function ({ message, args, api, event }) {
-    const userId = event.senderID;
-    const prompt = args.join(" ");
+  onStart: async function ({ message, args, api, event }) {
+    const userId = event.senderID;
+    const prompt = args.join(" ");
 
-    if (!prompt) {
-      return api.sendMessage("❌ | Please provide a prompt to generate an image.", event.threadID, event.messageID);
-    }
+    if (!prompt) {
+      return message.reply("❌ | Please provide a prompt to generate an image.");
+    }
 
-    if (!canGenerateImage(userId)) {
-      return api.sendMessage("❌ | You can generate a maximum of 2 images every 10 minutes. Please try again later.", event.threadID, event.messageID);
-    }
+    if (!canGenerateImage(userId)) {
+      return message.reply("❌ | You can generate a maximum of 2 images every 10 minutes. Please try again later.");
+    }
 
-    api.setMessageReaction("⏰", event.messageID, (err) => {}, true);
+    const waitMessage = await message.reply("✨ | Initiating MidJourney's magical process... Please be patient, this might take a moment.");
+    await generateCollage(prompt, message, api, event, waitMessage.messageID, userId);
+  },
 
-    api.sendMessage("✨ | Initiating MidJourney's magical process... Please be patient, this might take a moment.", event.threadID, async (err, info) => {
-      if (err) return;
-      await generateCollage(prompt, message, api, event, info.messageID, userId);
-    });
-  },
+  onReply: async function ({ event, api, replyData, message }) {
+    const userId = event.senderID;
+    const selection = event.body.trim().toUpperCase();
 
-  onReply: async function ({ event, api, replyData }) {
-    const userId = event.senderID;
-    const selection = event.body.trim().toUpperCase();
+    if (!['U1', 'U2', 'U3', 'U4'].includes(selection)) {
+      return message.reply("❌ | Invalid selection. Please choose from U1, U2, U3, U4.");
+    }
 
-    if (selection === "UALL") {
-      if (!userSelections[userId]) {
-        return api.sendMessage("❌ | No image found. Please generate a new one first.", event.threadID, event.messageID);
-      }
-      const collagePath = userSelections[userId];
-      api.sendMessage("Upscale request added, please wait...", event.threadID, async (err, info) => {
-        if (err) return;
-        await cropAllImages(collagePath, event, api);
-      });
-      return;
-    }
+    if (!userSelections[userId]) {
+      return message.reply("❌ | No image found. Please generate a new one first.");
+    }
 
-    if (!['U1', 'U2', 'U3', 'U4'].includes(selection)) {
-      return api.sendMessage("❌ | Invalid selection. Please choose from U1, U2, U3, U4, or UALL.", event.threadID, event.messageID);
-    }
-
-    if (!userSelections[userId]) {
-      return api.sendMessage("❌ | No image found. Please generate a new one first.", event.threadID, event.messageID);
-    }
-
-    const collagePath = userSelections[userId];
-
-    api.sendMessage("Upscaling your selected image...", event.threadID, async (err, info) => {
-      if (err) return;
-      await upscaleAndSendImage(collagePath, selection, event, api);
-    });
-  },
+    const collagePath = userSelections[userId];
+    const waitMessage = await message.reply("⏫ | Upscaling your selected image...");
+    await upscaleAndSendImage(collagePath, selection, event, api, waitMessage.messageID);
+  },
 };
 
 async function generateCollage(prompt, message, api, event, waitMessageID, userId) {
-  let collagePath;
-  try {
-    const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mj-7?prompt=${encodeURIComponent(prompt)}&key=exclusive_key`;
-    const response = await axios.get(apiUrl, { responseType: "arraybuffer" });
+  const cacheDir = path.resolve(__dirname, "cache");
+  if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 
-    if (!response || !response.data || response.data.length === 0) {
-      throw new Error("❌ | Image generation failed. Please try again.");
-    }
+  try {
+    const apiUrl = `https://zaikyoov3-up.up.railway.app/api/mj-7?prompt=${encodeURIComponent(prompt)}&key=exclusive_key`;
+    const initRes = await axios.get(apiUrl);
 
-    const cacheDir = path.resolve(__dirname, "cache");
-    if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+    if (!initRes.data || initRes.data.status !== "processing" || !initRes.data.pollingUrl) {
+      throw new Error("❌ | Failed to initiate generation.");
+    }
 
-    collagePath = path.join(cacheDir, `${Date.now()}_midjourneyx_collage.png`);
-    await fs.promises.writeFile(collagePath, response.data);
+    const pollingUrl = initRes.data.pollingUrl;
+    let completed = false;
+    let imageUrl = "";
 
-    const stream = fs.createReadStream(collagePath);
+    for (let i = 0; i < 150; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const pollRes = await axios.get(pollingUrl);
+      if (pollRes.data.status === "completed" && pollRes.data.imageUrl) {
+        imageUrl = pollRes.data.imageUrl;
+        completed = true;
+        break;
+      }
+    }
 
-    
-    setTimeout(async () => {
-      try {
-        await fs.promises.unlink(collagePath);
-      } catch (err) {
-        console.error("❌ Error deleting file:", err);
-      }
-    }, 300000);
+    if (!completed) {
+      throw new Error("❌ | Image generation timed out. Please try again later.");
+    }
 
-    api.unsendMessage(waitMessageID, (err) => {});
-    api.setMessageReaction("✅", event.messageID, (err) => {}, true);
+    const imageRes = await axios.get(imageUrl, { responseType: "arraybuffer" });
+    const collagePath = path.join(cacheDir, `${Date.now()}_midjourneyx_collage.png`);
+    await fs.promises.writeFile(collagePath, imageRes.data);
 
-    userSelections[userId] = collagePath;
+    const stream = fs.createReadStream(collagePath);
 
-    message.reply(
-      {
-        body: "Midjourney process completed ✨\n\n❏ Action: U1, U2, U3, U4",
-        attachment: stream,
-      },
-      (err, info) => {
-        global.GoatBot.onReply.set(info.messageID, {
-          commandName: "midjourney",
-          author: userId,
-        });
-      }
-    );
+    setTimeout(async () => {
+      try {
+        await fs.promises.unlink(collagePath);
+      } catch (err) {
+        console.error("❌ Error deleting file:", err);
+      }
+    }, 300000);
 
-    logRequest(userId);
+    userSelections[userId] = collagePath;
 
-  } catch (error) {
-    api.sendMessage("❌ | An error occurred. Please try again later.", event.threadID, event.messageID);
-  }
+    await api.unsendMessage(waitMessageID);
+    message.reply(
+      {
+        body: "Midjourney process completed ✨\n\n❏ Action: U1, U2, U3, U4",
+        attachment: stream,
+      },
+      (err, info) => {
+        global.GoatBot.onReply.set(info.messageID, {
+          commandName: "midjourney",
+          author: userId,
+        });
+      }
+    );
+
+    logRequest(userId);
+
+  } catch (error) {
+    console.error("Midjourney Error:", error.message);
+    api.sendMessage("❌ | An error occurred while generating the image. Please try again later.", event.threadID);
+  }
 }
 
-async function upscaleAndSendImage(collagePath, selection, event, api) {
-  try {
-    const image = await loadImage(collagePath);
-    const canvasSize = image.width / 2;
-    const canvas = createCanvas(canvasSize, canvasSize);
-    const ctx = canvas.getContext("2d");
+async function upscaleAndSendImage(collagePath, selection, event, api, waitMessageID) {
+  try {
+    const image = await loadImage(collagePath);
+    const width = image.width;
+    const height = image.height;
+    const halfWidth = Math.floor(width / 2);
+    const halfHeight = Math.floor(height / 2);
 
-    const positions = {
-      U1: { x: 0, y: 0 },
-      U2: { x: canvasSize, y: 0 },
-      U3: { x: 0, y: canvasSize },
-      U4: { x: canvasSize, y: canvasSize },
-    };
+    const canvas = createCanvas(halfWidth, halfHeight);
+    const ctx = canvas.getContext("2d");
 
-    const { x, y } = positions[selection];
+    const positions = {
+      U1: { sx: 0, sy: 0 },
+      U2: { sx: halfWidth, sy: 0 },
+      U3: { sx: 0, sy: halfHeight },
+      U4: { sx: halfWidth, sy: halfHeight },
+    };
 
-    ctx.drawImage(image, x, y, canvasSize, canvasSize, 0, 0, canvasSize, canvasSize);
+    const { sx, sy } = positions[selection];
 
-    const upscalePath = collagePath.replace("_collage.png", `_upscaled_${selection}.png`);
-    const buffer = canvas.toBuffer("image/png");
-    await fs.promises.writeFile(upscalePath, buffer);
+    ctx.drawImage(image, sx, sy, halfWidth, halfHeight, 0, 0, halfWidth, halfHeight);
 
-    const stream = fs.createReadStream(upscalePath);
+    const upscalePath = collagePath.replace("_collage.png", `_upscaled_${selection}.png`);
+    const buffer = canvas.toBuffer("image/png");
+    await fs.promises.writeFile(upscalePath, buffer);
 
-    api.sendMessage(
-      {
-        body: "Upscale request added, please wait...",
-        attachment: stream,
-      },
-      event.threadID,
-      async () => {
-        try {
-          await fs.promises.unlink(upscalePath);
-        } catch (err) {
-          console.error("❌ Error deleting file:", err);
-        }
-      }
-    );
+    const stream = fs.createReadStream(upscalePath);
 
-  } catch (error) {
-    api.sendMessage("❌ | Failed to upscale the image. Please try again.", event.threadID, event.messageID);
-  }
-}
+    await api.unsendMessage(waitMessageID);
+    api.sendMessage(
+      {
+        body: `✨ | Here is your upscaled image: ${selection}`,
+        attachment: stream,
+      },
+      event.threadID,
+      async () => {
+        try {
+          await fs.promises.unlink(upscalePath);
+        } catch (err) {
+          console.error("❌ Error deleting file:", err);
+        }
+      }
+    );
 
-async function cropAllImages(collagePath, event, api) {
-  try {
-    const image = await loadImage(collagePath);
-    const canvasSize = image.width / 2;
-    const canvas = createCanvas(canvasSize, canvasSize);
-    const ctx = canvas.getContext("2d");
-
-    const positions = {
-      U1: { x: 0, y: 0 },
-      U2: { x: canvasSize, y: 0 },
-      U3: { x: 0, y: canvasSize },
-      U4: { x: canvasSize, y: canvasSize },
-    };
-
-    const croppedPaths = [];
-    for (let key in positions) {
-      const { x, y } = positions[key];
-
-      canvas.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.drawImage(image, x, y, canvasSize, canvasSize, 0, 0, canvasSize, canvasSize);
-
-      const cropPath = collagePath.replace("_collage.png", `_cropped_${key}.png`);
-      const buffer = canvas.toBuffer("image/png");
-      await fs.promises.writeFile(cropPath, buffer);
-      croppedPaths.push(cropPath);
-    }
-
-    const streams = croppedPaths.map((path) => fs.createReadStream(path));
-    api.sendMessage(
-      {
-        body: "✨ | All upscaled images are ready.",
-        attachment: streams,
-      },
-      event.threadID,
-      async () => {
-        for (const path of croppedPaths) {
-          try {
-            await fs.promises.unlink(path);
-          } catch (err) {
-            console.error("❌ Error deleting file:", err);
-          }
-        }
-      }
-    );
-
-  } catch (error) {
-    api.sendMessage("❌ | Failed to upscale the images. Please try again.", event.threadID, event.messageID);
-  }
+  } catch (error) {
+    console.error("Upscaling Error:", error.message);
+    api.sendMessage("❌ | Failed to upscale the image. Please try again.", event.threadID);
+  }
 }
 
 function canGenerateImage(userId) {
-  if (adminIds.includes(userId)) {
-    return true;
-  }
+  if (adminIds.includes(userId)) {
+    return true;
+  }
 
-  const now = Date.now();
-  if (!requestCache[userId]) requestCache[userId] = [];
+  const now = Date.now();
+  if (!requestCache[userId]) requestCache[userId] = [];
 
-  requestCache[userId] = requestCache[userId].filter((timestamp) => now - timestamp < 10 * 60 * 1000);
+  requestCache[userId] = requestCache[userId].filter((timestamp) => now - timestamp < 10 * 60 * 1000);
 
-  return requestCache[userId].length < 2;
+  return requestCache[userId].length < 2;
 }
 
 function logRequest(userId) {
-  if (!adminIds.includes(userId)) {
-    if (!requestCache[userId]) {
-      requestCache[userId] = [];
-    }
-    requestCache[userId].push(Date.now());
-  }
+  if (!adminIds.includes(userId)) {
+    if (!requestCache[userId]) {
+      requestCache[userId] = [];
+    }
+    requestCache[userId].push(Date.now());
+  }
 }
