@@ -25,7 +25,7 @@ module.exports = {
       return api.sendMessage("⚠️ Please enter a message!", event.threadID, event.messageID);
     }
 
-    const apiUrl = `https://global-redwans-apis.onrender.com/api/gemini?value=${encodeURIComponent(query)}`;
+    const apiUrl = `https://global-redwans-rest-apis.onrender.com/api/gemini?value=${encodeURIComponent(query)}`;
 
     try {
       const response = await axios.get(apiUrl);
