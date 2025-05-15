@@ -18,14 +18,14 @@ module.exports = {
     },
     longDescription: {
       en: "List all available commands and get detailed usage information.\n\n" +
-      "Usage:\n" +
-      "{pn}help -s <keyword> : Search for commands related to the keyword.\n" +
-      "{pn}help -top : Show the top 5 most used commands.\n" +
-      "{pn}help -new : Show the 5 newest commands added.\n" +
-      "{pn}help -c <category> : List all commands from a specific category.\n" +
-      "{pn}help -r : Show commands available for your user role.\n" +
-      "{pn}help <cmdName> : Get detailed information about a specific command.\n" +
-      "{pn}help -a <author> : List commands created by a specific author.",
+        "Usage:\n" +
+        "{pn}help -s <keyword> : Search for commands related to the keyword.\n" +
+        "{pn}help -top : Show the top 5 most used commands.\n" +
+        "{pn}help -new : Show the 5 newest commands added.\n" +
+        "{pn}help -c <category> : List all commands from a specific category.\n" +
+        "{pn}help -r : Show commands available for your user role.\n" +
+        "{pn}help <cmdName> : Get detailed information about a specific command.\n" +
+        "{pn}help -a <author> : List commands created by a specific author.",
     },
     category: "system",
     guide: {
@@ -127,38 +127,51 @@ module.exports = {
     }
 
     if (args.length === 0) {
-      const categories = {};
-      let msg = `┏━━━━━━━━━━━━━━━━━┓\n     🜲  𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗟𝗜𝗦𝗧  🜲\n┛━━━━━━━━━━━━━━━━━┛`;
+      let aiChatting = "", aiImageGen = "", others = "";
 
       for (const [name, value] of commands) {
         if (value.config.role > 1 && role < value.config.role) continue;
-        const category = value.config.category || "Uncategorized";
-        categories[category] = categories[category] || { commands: [] };
-        categories[category].commands.push(name);
+        const category = value.config.category?.toLowerCase() || "others";
+
+        if (category.includes("chat")) {
+          aiChatting += `│ • ${name}\n`;
+        } else if (category.includes("image") || category.includes("aiimage")) {
+          aiImageGen += `│ • ${name}\n`;
+        } else {
+          others += `│ • ${name}\n`;
+        }
       }
 
-      Object.keys(categories).forEach((category) => {
-        if (category !== "info") {
-          msg += `\n\n◈━━ 『  ${category.toUpperCase()}  』━━◈`;
+      let msg = `Redwan's Bots CMDS
+╭─╼━━━━━━━━╾─╮
+│   𝗔𝗜 𝘾𝙃𝘼𝙏𝙄𝙉𝙂
+${aiChatting || "│ • None"}
+╰─╼━━━━━━━━╾─╯
+╭─╼━━━━━━━━╾─╮
+│   𝗔𝗜 𝙄𝙈𝘼𝙂𝙀 𝙂𝙀𝙉𝙀𝙍𝘼𝙏𝙄𝙊𝙉
+${aiImageGen || "│ • None"}
+╰─╼━━━━━━━━╾─╯
+╭─╼━━━━━━━━╾─╮
+│   𝙊𝙏𝙃𝙀𝙍𝙎
+${others || "│ • None"}
+╰─╼━━━━━━━━╾─╯
+╭─╼━━━━━━━━╾─╮
+│   𝘼𝙗𝙤𝙪𝙩 𝘽𝙊𝙏
+│ - only AI related cmd
+│   available.
+│ - Only active for personal
+│   usages
+│ - Not Available in other's GC
+╰─━━━━━━━━━╾─╯
+─────⭔
+│ » Type ${prefix}help <cmd> to │learn.
+├────────⭔
+│ [Redwan | 𝙏𝙚𝙩𝙧𝙤𝙭𝙞𝙙𝙚 𝘼𝙄]
+╰─────────────
 
-          const names = categories[category].commands.sort();
-          for (let i = 0; i < names.length; i += 3) {
-            const cmds = names.slice(i, i + 3).map((item) => `➤ ${item}`);
-            msg += `\n${cmds.join(" ".repeat(Math.max(1, 10 - cmds.join("").length)))}`;
-          }
+🌟 Have a great time! 🌟`;
 
-          msg += `\n◈━━━━━━━━━━━━━━━━◈`;
-        }
-      });
-
-      const totalCommands = commands.size;
-      msg += `\n\n┏━━━━━━━━━━━━━━━━━┓\n`;
-      msg += `┃ ⚡ 𝙏𝙤𝙩𝙖𝙡 𝘾𝙤𝙢𝙢𝙖𝙣𝙙𝙨: [ ${totalCommands} ]\n`;
-      msg += `┃ ⚡ 𝙏𝙮𝙥𝙚 [ ${prefix}help <cmd> ] 𝙩𝙤 𝙜𝙚𝙩 𝙙𝙚𝙩𝙖𝙞𝙡𝙨.\n`;
-      msg += `┃ ⚡ 𝙏𝙮𝙥𝙚 [ ${prefix}help -a <author> ] 𝙩𝙤 𝙡𝙞𝙨𝙩 𝙩𝙝𝙚𝙞𝙧 𝙘𝙤𝙢𝙢𝙖𝙣𝙙𝙨.\n`;
-      msg += `┛━━━━━━━━━━━━━━━━━┛`;
-
-      await message.reply(msg);
+      return await message.reply(msg);
     } else {
       const commandName = args[0].toLowerCase();
       return sendCommandDetails(message, commandName, prefix);
@@ -210,7 +223,6 @@ function roleTextToString(roleText) {
   }
 }
 
-// Function to find commands by author
 async function sendCommandsByAuthor(message, authorName, prefix) {
   const foundCommands = [...commands.values()]
     .filter(cmd => cmd.config.author?.toLowerCase() === authorName.toLowerCase())
