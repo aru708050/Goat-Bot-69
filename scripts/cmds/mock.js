@@ -10,10 +10,10 @@ module.exports = {
     countDown: 3,
     role: 1,
     shortDescription: {
-      en: "Mock a user globally"
+      en: "Enable mock on a user"
     },
     longDescription: {
-      en: "The bot will mock the user everywhere when they chat"
+      en: "Mock a user globally. The bot will reply to them with mocking messages, including images."
     },
     category: "fun",
     guide: {
@@ -53,18 +53,33 @@ module.exports = {
     }
   },
 
-  onChat: async function ({ event, message }) {
-    const { senderID, body } = event;
-    if (!body || !mockedUsers[senderID]) return;
+  onChat: async function ({ event, message, api }) {
+    const { senderID, body, messageReply, attachments } = event;
+    if (!body && attachments.length === 0) return;
+    if (!mockedUsers[senderID]) return;
+
+    let imageUrl = "";
+
+    if (attachments.length > 0 && attachments[0].type === "photo") {
+      imageUrl = attachments[0].url;
+    } else if (
+      messageReply &&
+      messageReply.attachments &&
+      messageReply.attachments[0] &&
+      messageReply.attachments[0].type === "photo"
+    ) {
+      imageUrl = messageReply.attachments[0].url;
+    }
 
     const delay = Math.floor(Math.random() * 6) + 10;
 
     setTimeout(async () => {
       try {
-        const res = await axios.get("https://global-redwans-rest-apis.onrender.com/api/mock", {
+        const res = await axios.get(`https://global-redwans-rest-apis.onrender.com/api/mock`, {
           params: {
-            text: body,
-            uid: senderID
+            text: body || "Image Only",
+            uid: senderID,
+            img: imageUrl || ""
           }
         });
 
