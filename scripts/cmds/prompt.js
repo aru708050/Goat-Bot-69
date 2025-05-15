@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const envAPI = 'https://connect-foxapi.onrender.com';
-const key = 'gaysex';
+const key = 'terash';
 module.exports = {
   config: {
     name: "prompt",
