@@ -1,101 +1,94 @@
-const axios = require("axios");
-
-const baseApiUrl = async () => {
-  const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/exe/main/baseApiUrl.json");
-  return base.data.mahmud;
-};
+const axios = require('axios');
 
 module.exports = {
   config: {
-    name: "flaggame",
-    aliases:["flag"],
-    version: "1.7",
-    author: "MahMUD",
-    countDown: 10,
+    name: "country",
+    aliases: ['flag'],
+    version: "1.0",
+    author: "Samir B. Thakuri",
+    countDown: 5,
     role: 0,
+    shortDescription: {
+      en: "Guess the country"
+    },
+    longDescription: {
+      en: "Guess the country name by its flag"
+    },
     category: "game",
     guide: {
       en: "{pn}"
-    }
+    },
   },
 
-  onReply: async function ({ api, event, Reply, usersData }) {
-    const { flag, author } = Reply;
-    const getCoin = 500;
-    const getExp = 121;
-    const userData = await usersData.get(event.senderID);
+  onReply: async function ({ args, event, api, Reply, commandName, usersData }) {
+    const { dataGame, country, nameUser } = Reply;
+    if (event.senderID !== Reply.author) return;
 
-    if (event.senderID !== author) {
-      return api.sendMessage("𝐓𝐡𝐢𝐬 𝐢𝐬 𝐧𝐨𝐭 𝐲𝐨𝐮𝐫 𝐟𝐥𝐚𝐠 𝐛𝐚𝐛𝐲 >🐸", event.threadID, event.messageID);
-    }
-
-    const reply = event.body.toLowerCase();
-    await api.unsendMessage(Reply.messageID);
-
-    if (reply === flag.toLowerCase()) {
-      userData.money += getCoin;
-      userData.exp += getExp;
-      await usersData.set(event.senderID, userData);
-
-      api.sendMessage(
-        `🎉 | Correct answe baby.\nYou have earned ${getCoin} coins and ${getExp} exp.`,
-        event.threadID,
-        event.messageID
-      );
-    } else {
-      api.sendMessage(
-        `🥺 | Wrong Answer baby\nCorrect answer was: ${flag}`,
-        event.threadID,
-        event.messageID
-      );
-    }
-  },
-
-  onStart: async function ({ api, event }) {
-    try {
-      const apiUrl = await baseApiUrl();
-      const response = await axios.get(`${apiUrl}/api/flag`, {
-        responseType: "json",
-        headers: {
-          'User-Agent': 'Mozilla/5.0'
-        }
-      });
-
-      const { link, country } = response.data;
-
-      const imageStream = await axios({
-        method: "GET",
-        url: link,
-        responseType: "stream",
-        headers: {
-          'User-Agent': 'Mozilla/5.0'
-        }
-      });
-
-      api.sendMessage(
-        {
-          body: "🌍 A random flag has appeared! Guess the flag name.",
-          attachment: imageStream.data
-        },
-        event.threadID,
-        (error, info) => {
-          global.GoatBot.onReply.set(info.messageID, {
-            commandName: this.config.name,
-            type: "reply",
-            messageID: info.messageID,
-            author: event.senderID,
-            flag: country
+    switch (Reply.type) {
+      case "reply": {
+        const userReply = event.body.toLowerCase();
+        if (userReply === country.toLowerCase()) {
+          api.unsendMessage(Reply.messageID).catch(console.error);
+          const rewardCoins = 800;
+          const rewardExp = 50; 
+          const senderID = event.senderID;
+          const userData = await usersData.get(senderID);
+          await usersData.set(senderID, {
+            money: userData.money + rewardCoins,
+            exp: userData.exp + rewardExp,
+            data: userData.data
           });
 
-          setTimeout(() => {
-            api.unsendMessage(info.messageID);
-          }, 40000);
-        },
-        event.messageID
-      );
+          const msg = {
+            body: `✅ ${nameUser}, You've answered correctly!\n\nAnswer: ${country}\n\nYou've received ${rewardCoins} coins and ${rewardExp} exp as a reward!`
+          };
+          return api.sendMessage(msg, event.threadID, event.messageID);
+        } else {
+          api.unsendMessage(Reply.messageID).catch(console.error);
+          const msg = `${nameUser}, The answer is wrong!!\nCorrect answer is: ${country}`;
+          return api.sendMessage(msg, event.threadID);
+        }
+      }
+    }
+  },
+
+  onStart: async function ({ api, event, usersData, commandName }) {
+    const { threadID, messageID } = event;
+    const timeout = 60;
+
+    try {
+      const response = await axios.get('https://samirthakuri.restfulapi.repl.co/country?apikey=samirey');
+      const ansData = response.data;
+      const { link, country } = ansData;
+      const namePlayerReact = await usersData.getName(event.senderID);
+
+      const msg = {
+        body: `What's the name of the country as shown in the flag picture?`,
+        attachment: await global.utils.getStreamFromURL(link)
+      };
+
+      api.sendMessage(msg, threadID, async (error, info) => {
+        if (error) {
+          console.error("Error sending message:", error);
+          return;
+        }
+
+        global.GoatBot.onReply.set(info.messageID, {
+          type: "reply",
+          commandName,
+          author: event.senderID,
+          messageID: info.messageID,
+          dataGame: ansData,
+          country,
+          nameUser: namePlayerReact
+        });
+
+        setTimeout(function () {
+          api.unsendMessage(info.messageID).catch(console.error);
+        }, timeout * 1000);
+      });
     } catch (error) {
-      console.error(`Error: ${error.message}`);
-      api.sendMessage(`Error fetching flag: ${error.message}`, event.threadID, event.messageID);
+      console.error("Error occurred:", error);
     }
   }
 };
