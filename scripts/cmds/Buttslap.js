@@ -3,25 +3,25 @@ const fs = require("fs-extra");
 
 module.exports = {
   config: {
-    name: "jail",
+    name: "buttslap",
     version: "1.1",
-    author: "Samir Thakuri",
+    author: "Amit max ⚡",// Amit Max don't change it..
     countDown: 5,
     role: 0,
-    shortDescription: "Jail image",
-    longDescription: "Jail image",
+    shortDescription: "Buttslap image",
+    longDescription: "Buttslap image",
     category: "fun",
     guide: {
-      en: "{pn} @tag"
+      en: "   {pn} @tag"
     }
   },
 
   langs: {
     vi: {
-      noTag: "Bạn phải tag người bạn muốn tù"
+      noTag: ""
     },
     en: {
-      noTag: "You must tag the person you want to jail"
+      noTag: "You must tag the person you want to slap"
     }
   },
 
@@ -32,12 +32,12 @@ module.exports = {
       return message.reply(getLang("noTag"));
     const avatarURL1 = await usersData.getAvatarUrl(uid1);
     const avatarURL2 = await usersData.getAvatarUrl(uid2);
-    const img = await new DIG.Jail().getImage(avatarURL2);
-    const pathSave = `${__dirname}/tmp/${uid2}_Jail.png`;
+    const img = await new DIG.Spank().getImage(avatarURL1, avatarURL2);
+    const pathSave = `${__dirname}/tmp/${uid1}_${uid2}spank.png`;
     fs.writeFileSync(pathSave, Buffer.from(img));
     const content = args.join(' ').replace(Object.keys(event.mentions)[0], "");
     message.reply({
-      body: `${(content || "You're in jail!")} 🚔`,
+      body: `${(content || "hehe boii")}`,
       attachment: fs.createReadStream(pathSave)
     }, () => fs.unlinkSync(pathSave));
   }
