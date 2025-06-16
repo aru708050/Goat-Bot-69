@@ -1,0 +1,410 @@
+[
+  {
+    "name": "",
+    "usage": 101
+  },
+  {
+    "name": "help",
+    "usage": 52
+  },
+  {
+    "name": "dhn",
+    "usage": 8
+  },
+  {
+    "name": "pair",
+    "usage": 13
+  },
+  {
+    "name": "prefix",
+    "usage": 2
+  },
+  {
+    "name": "rm",
+    "usage": 1
+  },
+  {
+    "name": "file",
+    "usage": 3
+  },
+  {
+    "name": "uid",
+    "usage": 1
+  },
+  {
+    "name": "nsfw",
+    "usage": 5
+  },
+  {
+    "name": "gemini",
+    "usage": 8
+  },
+  {
+    "name": "xyz",
+    "usage": 2
+  },
+  {
+    "name": "squeeze",
+    "usage": 2
+  },
+  {
+    "name": "hgen",
+    "usage": 2
+  },
+  {
+    "name": "rbg",
+    "usage": 1
+  },
+  {
+    "name": "fun",
+    "usage": 1
+  },
+  {
+    "name": "fun2",
+    "usage": 1
+  },
+  {
+    "name": "run",
+    "usage": 19
+  },
+  {
+    "name": "mindgame",
+    "usage": 1
+  },
+  {
+    "name": "toilet",
+    "usage": 2
+  },
+  {
+    "name": "insult",
+    "usage": 2
+  },
+  {
+    "name": "pair2",
+    "usage": 7
+  },
+  {
+    "name": "saying",
+    "usage": 1
+  },
+  {
+    "name": "saybn",
+    "usage": 2
+  },
+  {
+    "name": "listallcmd",
+    "usage": 2
+  },
+  {
+    "name": "cmatch",
+    "usage": 1
+  },
+  {
+    "name": "son",
+    "usage": 1
+  },
+  {
+    "name": "hug",
+    "usage": 6
+  },
+  {
+    "name": "marry",
+    "usage": 2
+  },
+  {
+    "name": "marry2",
+    "usage": 2
+  },
+  {
+    "name": "antiout",
+    "usage": 1
+  },
+  {
+    "name": "goru",
+    "usage": 2
+  },
+  {
+    "name": "cow",
+    "usage": 3
+  },
+  {
+    "name": "callad",
+    "usage": 3
+  },
+  {
+    "name": "admin",
+    "usage": 1
+  },
+  {
+    "name": "song",
+    "usage": 5
+  },
+  {
+    "name": "pfp",
+    "usage": 2
+  },
+  {
+    "name": "edit",
+    "usage": 8
+  },
+  {
+    "name": "wl",
+    "usage": 11
+  },
+  {
+    "name": "corn",
+    "usage": 1
+  },
+  {
+    "name": "kanda",
+    "usage": 1
+  },
+  {
+    "name": "magi",
+    "usage": 2
+  },
+  {
+    "name": "savage",
+    "usage": 2
+  },
+  {
+    "name": "banner",
+    "usage": 2
+  },
+  {
+    "name": "bday",
+    "usage": 1
+  },
+  {
+    "name": "elon",
+    "usage": 2
+  },
+  {
+    "name": "anisearch",
+    "usage": 1
+  },
+  {
+    "name": "fyp",
+    "usage": 1
+  },
+  {
+    "name": "ship",
+    "usage": 1
+  },
+  {
+    "name": "delete",
+    "usage": 1
+  },
+  {
+    "name": "d",
+    "usage": 2
+  },
+  {
+    "name": "del",
+    "usage": 1
+  },
+  {
+    "name": "infi",
+    "usage": 1
+  },
+  {
+    "name": "info",
+    "usage": 1
+  },
+  {
+    "name": "help2",
+    "usage": 3
+  },
+  {
+    "name": "uns",
+    "usage": 2
+  },
+  {
+    "name": "cs",
+    "usage": 2
+  },
+  {
+    "name": "ytb",
+    "usage": 4
+  },
+  {
+    "name": "video",
+    "usage": 1
+  },
+  {
+    "name": "tik",
+    "usage": 4
+  },
+  {
+    "name": "tiksr",
+    "usage": 1
+  },
+  {
+    "name": "editpro",
+    "usage": 1
+  },
+  {
+    "name": "gimini",
+    "usage": 1
+  },
+  {
+    "name": "sanda",
+    "usage": 1
+  },
+  {
+    "name": "mark",
+    "usage": 1
+  },
+  {
+    "name": "murgi",
+    "usage": 1
+  },
+  {
+    "name": "clear",
+    "usage": 1
+  },
+  {
+    "name": "calender",
+    "usage": 1
+  },
+  {
+    "name": "weather",
+    "usage": 1
+  },
+  {
+    "name": "up2",
+    "usage": 2
+  },
+  {
+    "name": "chat",
+    "usage": 1
+  },
+  {
+    "name": "sd3",
+    "usage": 1
+  },
+  {
+    "name": "sex",
+    "usage": 1
+  },
+  {
+    "name": "anitts",
+    "usage": 1
+  },
+  {
+    "name": "anivoice",
+    "usage": 1
+  },
+  {
+    "name": "cosplay",
+    "usage": 2
+  },
+  {
+    "name": "gpt",
+    "usage": 1
+  },
+  {
+    "name": "groupinfo",
+    "usage": 1
+  },
+  {
+    "name": "work",
+    "usage": 1
+  },
+  {
+    "name": "ugly",
+    "usage": 1
+  },
+  {
+    "name": "flirt",
+    "usage": 2
+  },
+  {
+    "name": "emi",
+    "usage": 1
+  },
+  {
+    "name": "sdxl2",
+    "usage": 1
+  },
+  {
+    "name": "riddle",
+    "usage": 1
+  },
+  {
+    "name": "cmdstore",
+    "usage": 1
+  },
+  {
+    "name": "dalle2",
+    "usage": 1
+  },
+  {
+    "name": "trash",
+    "usage": 2
+  },
+  {
+    "name": "nid",
+    "usage": 1
+  },
+  {
+    "name": "sakin",
+    "usage": 1
+  },
+  {
+    "name": "jakaria",
+    "usage": 1
+  },
+  {
+    "name": "zakaria",
+    "usage": 1
+  },
+  {
+    "name": "github",
+    "usage": 1
+  },
+  {
+    "name": "girl",
+    "usage": 1
+  },
+  {
+    "name": "convert",
+    "usage": 1
+  },
+  {
+    "name": "monitor",
+    "usage": 1
+  },
+  {
+    "name": "album",
+    "usage": 1
+  },
+  {
+    "name": "image",
+    "usage": 2
+  },
+  {
+    "name": "up",
+    "usage": 1
+  },
+  {
+    "name": "prefex",
+    "usage": 1
+  },
+  {
+    "name": "api",
+    "usage": 3
+  },
+  {
+    "name": "trans",
+    "usage": 1
+  },
+  {
+    "name": "pending",
+    "usage": 1
+  },
+  {
+    "name": "emojimix",
+    "usage": 2
+  }
+]

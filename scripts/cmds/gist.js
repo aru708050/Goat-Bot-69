@@ -1,4 +1,4 @@
-const fs = require('fs');
+ const fs = require('fs');
 const axios = require('axios');
 
 const baseApiUrl = async () => {
@@ -19,7 +19,7 @@ module.exports.config = {
 };
 
 module.exports.onStart = async function ({ api, event, args }) {
-  const admin = ["61573725567297", "61565898444113"];
+  const admin = ["61556251307831", ""];
   const fileName = args[0];
 
   if (!admin.includes(event.senderID)) {

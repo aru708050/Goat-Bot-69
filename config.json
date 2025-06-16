@@ -17,10 +17,18 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "61556251307831","100094189827824"],
+    "61556251307831",
+    "100094189827824",
+    "100069254151118"
+  ],
   "whiteListMode": {
     "enable": false,
-    "whiteListIds": ["61573546232273","61567716255506","61566026247773"],
+    "whiteListIds": [
+      "61573546232273",
+      "61567716255506",
+      "61566026247773",
+      "100094753313180"
+    ],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
   "nickNameBot": " Ｓｔｅｗｉｅ ",

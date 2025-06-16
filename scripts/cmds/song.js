@@ -1,67 +1,78 @@
-const axios = require("axios");
-const path = require("path");
+ const axios = require("axios");
+const fs = require('fs');
+
+const baseApiUrl = async () => {
+	const base = await axios.get(
+		`https://raw.githubusercontent.com/Blankid018/D1PT0/main/baseApiUrl.json`
+	);
+	return base.data.api;
+};
 
 module.exports = {
-  config: {
-    name: "song",
-    version: "2.2",
-    author: "@RI F AT",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Search & send song audio",
-    longDescription: "Send MP3 by searching or identifying from reply",
-    category: "media",
-    guide: {
-      en: "{pn} <song name> or reply to audio/video"
-    }
-  },
+	config: {
+		name: "song",
+		aliases: ["music"],
+		version: "1.0.0",
+		author: "rishi",
+		countDown: 5,
+		role: 0,
+		description: {
+			en: "Download MP3 music from YouTube by song name"
+		},
+		category: "media",
+		guide: {
+			en: "  {pn} <song name>: use to download MP3 music by song name"
+				+ "\n   Example:"
+				+ "\n {pn} Despacito"
+		}
+	},
+	onStart: async ({ api, args, event }) => {
+		if (args.length === 0) {
+			return api.sendMessage("❌ Please provide a song name.", event.threadID, event.messageID);
+		}
 
-  onStart: async function ({ api, event, args }) {
-    const queryInput = args.join(" ");
-    const { messageReply } = event;
+		const keyWord = args.join(" ");
+		const maxResults = 1;
+		let result;
 
-    try {
-      let searchQuery = queryInput;
+		try {
+			result = (await axios.get(`${await baseApiUrl()}/ytFullSearch?songName=${keyWord}`)).data.slice(0, maxResults);
+		} catch (err) {
+			return api.sendMessage("❌ An error occurred: " + err.message, event.threadID, event.messageID);
+		}
 
-      // Song recognition from reply
-      if (!searchQuery && messageReply?.attachments?.[0]?.url) {
-        const fileUrl = messageReply.attachments[0].url;
-        const recognizeRes = await axios.get(
-          `https://music-recognition.onrender.com/identify?audioUrl=${encodeURIComponent(fileUrl)}`
-        );
-        const { title, artist } = recognizeRes?.data || {};
-        if (!title || !artist) return api.sendMessage("Couldn't recognize the song.", event.threadID, event.messageID);
-        searchQuery = `${title} ${artist}`;
-      }
+		if (result.length === 0) {
+			return api.sendMessage("⭕ No search results match the keyword: " + keyWord, event.threadID, event.messageID);
+		}
 
-      if (!searchQuery) return api.sendMessage("Enter a song name or reply to audio/video.", event.threadID, event.messageID);
+		const selectedVideo = result[0];
+		const videoID = selectedVideo.id;
 
-      const res = await axios.get(`https://api.agatz.xyz/api/ytplay?message=${encodeURIComponent(searchQuery)}`);
-      const { title } = res?.data?.data?.audio || {};
-      const audioUrl = res?.data?.data?.audio?.url;
+		try {
+			const format = 'mp3';
+			const path = `ytb_${format}_${videoID}.${format}`;
+			const { data: { title, downloadLink } } = await axios.get(`${await baseApiUrl()}/ytDl3?link=${videoID}&format=${format}&quality=3`);
 
-      if (!audioUrl || !audioUrl.startsWith("http")) {
-        return api.sendMessage("MP3 not found.", event.threadID, event.messageID);
-      }
-
-      const audioRes = await axios({
-        url: audioUrl,
-        method: "GET",
-        responseType: "stream"
-      });
-
-      // Add a proper filename to make Messenger show it cleanly
-      const fileName = title ? `${title}.mp3` : "song.mp3";
-      audioRes.data.path = path.basename(fileName);
-
-      api.sendMessage({
-        body: title,
-        attachment: audioRes.data
-      }, event.threadID, event.messageID);
-
-    } catch (err) {
-      console.error("song cmd error:", err.message);
-      api.sendMessage("Error fetching song.", event.threadID, event.messageID);
-    }
-  }
+			await api.sendMessage({
+				body: `🎶 Title: ${title}`,
+				attachment: await dipto(downloadLink, path)
+			}, event.threadID, () => fs.unlinkSync(path), event.messageID);
+		} catch (e) {
+			console.error(e);
+			return api.sendMessage('❌ Failed to download the music. Please try again later.', event.threadID, event.messageID);
+		}
+	}
 };
+
+async function dipto(url, pathName) {
+	try {
+		const response = (await axios.get(url, {
+			responseType: "arraybuffer"
+		})).data;
+
+		fs.writeFileSync(pathName, Buffer.from(response));
+		return fs.createReadStream(pathName);
+	} catch (err) {
+		throw err;
+	}
+}

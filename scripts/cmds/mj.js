@@ -10,7 +10,7 @@ module.exports = {
     role: 0,
     shortDescription: "Generate 4 MJ-style images",
     longDescription: "Generate 4 images and reply with U1-U4 to select a specific one.",
-    category: "image generator",
+    category: "image",
     guide: "{pn} dog"
   },
 
