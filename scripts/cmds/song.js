@@ -1,78 +1,83 @@
- const axios = require("axios");
+const axios = require('axios');
 const fs = require('fs');
-
-const baseApiUrl = async () => {
-	const base = await axios.get(
-		`https://raw.githubusercontent.com/Blankid018/D1PT0/main/baseApiUrl.json`
-	);
-	return base.data.api;
-};
+const path = require('path');
 
 module.exports = {
-	config: {
-		name: "song",
-		aliases: ["music"],
-		version: "1.0.0",
-		author: "rishi",
-		countDown: 5,
-		role: 0,
-		description: {
-			en: "Download MP3 music from YouTube by song name"
-		},
-		category: "media",
-		guide: {
-			en: "  {pn} <song name>: use to download MP3 music by song name"
-				+ "\n   Example:"
-				+ "\n {pn} Despacito"
-		}
-	},
-	onStart: async ({ api, args, event }) => {
-		if (args.length === 0) {
-			return api.sendMessage("❌ Please provide a song name.", event.threadID, event.messageID);
-		}
+  config: {
+    name: 'song',
+    author: 'Nyx',
+    usePrefix: false,
+    category: 'Youtube Song Downloader'
+  },
+  onStart: async ({ event, api, args, message }) => {
+    try {
+      const query = args.join(' ');
+      if (!query) return message.reply('Please provide a search query!');
+      
+      const searchResponse = await axios.get(`https://mostakim.onrender.com/mostakim/ytSearch?search=${encodeURIComponent(query)}`);
+      api.setMessageReaction("⏳", event.messageID, () => {}, true);
 
-		const keyWord = args.join(" ");
-		const maxResults = 1;
-		let result;
+      const parseDuration = (timestamp) => {
+        const parts = timestamp.split(':').map(part => parseInt(part));
+        let seconds = 0;
 
-		try {
-			result = (await axios.get(`${await baseApiUrl()}/ytFullSearch?songName=${keyWord}`)).data.slice(0, maxResults);
-		} catch (err) {
-			return api.sendMessage("❌ An error occurred: " + err.message, event.threadID, event.messageID);
-		}
+        if (parts.length === 3) {
+          seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+        } else if (parts.length === 2) {
+          seconds = parts[0] * 60 + parts[1];
+        }
 
-		if (result.length === 0) {
-			return api.sendMessage("⭕ No search results match the keyword: " + keyWord, event.threadID, event.messageID);
-		}
+        return seconds;
+      };
 
-		const selectedVideo = result[0];
-		const videoID = selectedVideo.id;
+      const filteredVideos = searchResponse.data.filter(video => {
+        try {
+          const totalSeconds = parseDuration(video.timestamp);
+          return totalSeconds < 600;
+        } catch {
+          return false;
+        }
+      });
 
-		try {
-			const format = 'mp3';
-			const path = `ytb_${format}_${videoID}.${format}`;
-			const { data: { title, downloadLink } } = await axios.get(`${await baseApiUrl()}/ytDl3?link=${videoID}&format=${format}&quality=3`);
+      if (filteredVideos.length === 0) {
+        return message.reply('No short videos found (under 10 minutes)!');
+      }
 
-			await api.sendMessage({
-				body: `🎶 Title: ${title}`,
-				attachment: await dipto(downloadLink, path)
-			}, event.threadID, () => fs.unlinkSync(path), event.messageID);
-		} catch (e) {
-			console.error(e);
-			return api.sendMessage('❌ Failed to download the music. Please try again later.', event.threadID, event.messageID);
-		}
-	}
+      const selectedVideo = filteredVideos[0];
+      const tempFilePath = path.join(__dirname, 'temp_audio.m4a');
+      const apiResponse = await axios.get(`https://mostakim.onrender.com/m/sing?url=${selectedVideo.url}`);
+      
+      if (!apiResponse.data.url) {
+        throw new Error('No audio URL found in response');
+      }
+
+      const writer = fs.createWriteStream(tempFilePath);
+      const audioResponse = await axios({
+        url: apiResponse.data.url,
+        method: 'GET',
+        responseType: 'stream'
+      });
+
+      audioResponse.data.pipe(writer);
+      
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+
+      api.setMessageReaction("✅", event.messageID, () => {}, true);
+
+      await message.reply({
+        body: `🎧 Now playing: ${selectedVideo.title}\nDuration: ${selectedVideo.timestamp}`,
+        attachment: fs.createReadStream(tempFilePath)
+      });
+
+      fs.unlink(tempFilePath, (err) => {
+        if (err) message.reply(`Error deleting temp file: ${err.message}`);
+      });
+
+    } catch (error) {
+      message.reply(`Error: ${error.message}`);
+    }
+  }
 };
-
-async function dipto(url, pathName) {
-	try {
-		const response = (await axios.get(url, {
-			responseType: "arraybuffer"
-		})).data;
-
-		fs.writeFileSync(pathName, Buffer.from(response));
-		return fs.createReadStream(pathName);
-	} catch (err) {
-		throw err;
-	}
-}

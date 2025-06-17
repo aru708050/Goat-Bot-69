@@ -1,11 +1,11 @@
 [
   {
     "name": "",
-    "usage": 101
+    "usage": 126
   },
   {
     "name": "help",
-    "usage": 52
+    "usage": 61
   },
   {
     "name": "dhn",
@@ -13,11 +13,11 @@
   },
   {
     "name": "pair",
-    "usage": 13
+    "usage": 16
   },
   {
     "name": "prefix",
-    "usage": 2
+    "usage": 4
   },
   {
     "name": "rm",
@@ -25,19 +25,19 @@
   },
   {
     "name": "file",
-    "usage": 3
+    "usage": 4
   },
   {
     "name": "uid",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "nsfw",
-    "usage": 5
+    "usage": 9
   },
   {
     "name": "gemini",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "xyz",
@@ -49,7 +49,7 @@
   },
   {
     "name": "hgen",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "rbg",
@@ -65,7 +65,7 @@
   },
   {
     "name": "run",
-    "usage": 19
+    "usage": 20
   },
   {
     "name": "mindgame",
@@ -81,7 +81,7 @@
   },
   {
     "name": "pair2",
-    "usage": 7
+    "usage": 21
   },
   {
     "name": "saying",
@@ -129,27 +129,27 @@
   },
   {
     "name": "callad",
-    "usage": 3
+    "usage": 4
   },
   {
     "name": "admin",
-    "usage": 1
+    "usage": 3
   },
   {
     "name": "song",
-    "usage": 5
+    "usage": 9
   },
   {
     "name": "pfp",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "edit",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "wl",
-    "usage": 11
+    "usage": 12
   },
   {
     "name": "corn",
@@ -209,7 +209,7 @@
   },
   {
     "name": "info",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "help2",
@@ -217,7 +217,7 @@
   },
   {
     "name": "uns",
-    "usage": 2
+    "usage": 5
   },
   {
     "name": "cs",
@@ -225,7 +225,7 @@
   },
   {
     "name": "ytb",
-    "usage": 4
+    "usage": 5
   },
   {
     "name": "video",
@@ -257,7 +257,7 @@
   },
   {
     "name": "murgi",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "clear",
@@ -273,7 +273,7 @@
   },
   {
     "name": "up2",
-    "usage": 2
+    "usage": 5
   },
   {
     "name": "chat",
@@ -385,7 +385,7 @@
   },
   {
     "name": "up",
-    "usage": 1
+    "usage": 4
   },
   {
     "name": "prefex",
@@ -401,10 +401,122 @@
   },
   {
     "name": "pending",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "emojimix",
     "usage": 2
+  },
+  {
+    "name": "waifu",
+    "usage": 10
+  },
+  {
+    "name": "actor",
+    "usage": 1
+  },
+  {
+    "name": "game",
+    "usage": 1
+  },
+  {
+    "name": "tag",
+    "usage": 2
+  },
+  {
+    "name": "lala🙂",
+    "usage": 1
+  },
+  {
+    "name": "4k",
+    "usage": 3
+  },
+  {
+    "name": "pp",
+    "usage": 1
+  },
+  {
+    "name": "sing",
+    "usage": 2
+  },
+  {
+    "name": "u",
+    "usage": 7
+  },
+  {
+    "name": "kiss",
+    "usage": 1
+  },
+  {
+    "name": "xenoz",
+    "usage": 1
+  },
+  {
+    "name": "goat",
+    "usage": 1
+  },
+  {
+    "name": "fluxgen",
+    "usage": 2
+  },
+  {
+    "name": "flux",
+    "usage": 5
+  },
+  {
+    "name": "shell",
+    "usage": 2
+  },
+  {
+    "name": "adminboxonly",
+    "usage": 4
+  },
+  {
+    "name": "un",
+    "usage": 1
+  },
+  {
+    "name": "genx",
+    "usage": 2
+  },
+  {
+    "name": "cs3",
+    "usage": 1
+  },
+  {
+    "name": "slot",
+    "usage": 7
+  },
+  {
+    "name": "bal",
+    "usage": 2
+  },
+  {
+    "name": "qz",
+    "usage": 3
+  },
+  {
+    "name": "set",
+    "usage": 2
+  },
+  {
+    "name": "top",
+    "usage": 1
+  },
+  {
+    "name": "pair3",
+    "usage": 1
+  },
+  {
+    "name": "mj",
+    "usage": 2
+  },
+  {
+    "name": "shoti",
+    "usage": 1
+  },
+  {
+    "name": "acp",
+    "usage": 1
   }
 ]
