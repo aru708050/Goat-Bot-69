@@ -1,19 +1,19 @@
 [
   {
     "name": "",
-    "usage": 126
+    "usage": 172
   },
   {
     "name": "help",
-    "usage": 61
+    "usage": 69
   },
   {
     "name": "dhn",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "pair",
-    "usage": 16
+    "usage": 47
   },
   {
     "name": "prefix",
@@ -25,19 +25,19 @@
   },
   {
     "name": "file",
-    "usage": 4
+    "usage": 7
   },
   {
     "name": "uid",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "nsfw",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "gemini",
-    "usage": 9
+    "usage": 11
   },
   {
     "name": "xyz",
@@ -65,7 +65,7 @@
   },
   {
     "name": "run",
-    "usage": 20
+    "usage": 24
   },
   {
     "name": "mindgame",
@@ -81,7 +81,7 @@
   },
   {
     "name": "pair2",
-    "usage": 21
+    "usage": 23
   },
   {
     "name": "saying",
@@ -137,7 +137,7 @@
   },
   {
     "name": "song",
-    "usage": 9
+    "usage": 19
   },
   {
     "name": "pfp",
@@ -145,7 +145,7 @@
   },
   {
     "name": "edit",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "wl",
@@ -217,11 +217,11 @@
   },
   {
     "name": "uns",
-    "usage": 5
+    "usage": 8
   },
   {
     "name": "cs",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "ytb",
@@ -301,7 +301,7 @@
   },
   {
     "name": "gpt",
-    "usage": 1
+    "usage": 23
   },
   {
     "name": "groupinfo",
@@ -385,7 +385,7 @@
   },
   {
     "name": "up",
-    "usage": 4
+    "usage": 6
   },
   {
     "name": "prefex",
@@ -401,7 +401,7 @@
   },
   {
     "name": "pending",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "emojimix",
@@ -421,7 +421,7 @@
   },
   {
     "name": "tag",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "lala🙂",
@@ -433,15 +433,15 @@
   },
   {
     "name": "pp",
-    "usage": 1
+    "usage": 4
   },
   {
     "name": "sing",
-    "usage": 2
+    "usage": 6
   },
   {
     "name": "u",
-    "usage": 7
+    "usage": 9
   },
   {
     "name": "kiss",
@@ -465,7 +465,7 @@
   },
   {
     "name": "shell",
-    "usage": 2
+    "usage": 4
   },
   {
     "name": "adminboxonly",
@@ -485,11 +485,11 @@
   },
   {
     "name": "slot",
-    "usage": 7
+    "usage": 13
   },
   {
     "name": "bal",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "qz",
@@ -501,7 +501,7 @@
   },
   {
     "name": "top",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "pair3",
@@ -517,6 +517,50 @@
   },
   {
     "name": "acp",
+    "usage": 2
+  },
+  {
+    "name": "anisr",
+    "usage": 3
+  },
+  {
+    "name": "behenchod🙀",
+    "usage": 1
+  },
+  {
+    "name": "silent",
+    "usage": 1
+  },
+  {
+    "name": "add",
+    "usage": 4
+  },
+  {
+    "name": "shortcut",
+    "usage": 1
+  },
+  {
+    "name": "font",
+    "usage": 7
+  },
+  {
+    "name": "fontlist",
+    "usage": 1
+  },
+  {
+    "name": "setrole",
+    "usage": 1
+  },
+  {
+    "name": "maybe",
+    "usage": 1
+  },
+  {
+    "name": "onlyadmin",
+    "usage": 1
+  },
+  {
+    "name": "daily",
     "usage": 1
   }
 ]
