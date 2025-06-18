@@ -1,120 +1,167 @@
- const axios = require("axios");
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 
-const OPENAI_API_KEY = "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";
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-
-module.exports.config = {
-  name: "gpt",
-  version: "1.0.0",
-  usePrefix: true,
-  role: 0,
-  author: "ariyan",
-  description: "Simple GPT-4o-mini AI chat command",
-  category: "ai",
-  coolDowns: 5,
+const VOICE_MODELS = {
+  1: "Nova",
+  2: "Shimmer",
+  3: "Echo",
+  4: "Sable",
+  5: "Faye",
+  6: "Ember",
+  7: "Breeze"
 };
 
-const conversationHistory = new Map();
+module.exports = {
+  config: {
+    name: "gpt",
+    version: "1.2",
+    author: "@RI F AT ",
+    role: 0,
+    category: "ai",
+    shortDescription: { en: "Chat + Voice + Image AI" }
+  },
 
-function getConversationHistory(uid) {
-  if (!conversationHistory.has(uid)) conversationHistory.set(uid, []);
-  return conversationHistory.get(uid);
-}
+  onStart: async function({ message, event, args, commandName }) {
+    const fullInput = args.join(" ");
+    if (!fullInput) return message.reply("⚠️ Enter a prompt.");
 
-function updateConversationHistory(uid, role, content) {
-  const history = getConversationHistory(uid);
-  history.push({ role, content });
-  if (history.length > 20) history.shift();
-}
+    const senderID = event.senderID;
+    const chatSession = `chat_${senderID}`;
+    const voiceSession = `voice_${senderID}`;
 
-module.exports.onReply = async function ({ api, event, Reply }) {
-  if (Reply.author !== event.senderID) return;
+    const isVoice = fullInput.includes("-v");
+    const isImage = fullInput.includes("-img");
 
-  const uid = event.senderID;
-  const userMsg = event.body;
+    const modelMatch = fullInput.match(/-m\s?(\d+)/);
+    const modelNum = modelMatch ? parseInt(modelMatch[1]) : 1;
+    const voiceModel = VOICE_MODELS[modelNum] || VOICE_MODELS[1];
 
-  try {
-    const history = getConversationHistory(uid);
-    updateConversationHistory(uid, "user", userMsg);
+    const imgModelMatch = fullInput.match(/-img\s?(turbo|flux)/i);
+    const imgModel = imgModelMatch ? imgModelMatch[1].toLowerCase() : "turbo";
 
-    const res = await axios.post(
-      OPENAI_API_URL,
-      {
-        model: "gpt-4o-mini",
-        messages: history,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
+    // Reset session
+    if (args[0] === "reset") {
+      await axios.get(`https://coustom-gpt.onrender.com/reset?session=${chatSession}`);
+      await axios.get(`https://coustom-gpt.onrender.com/reset?session=${voiceSession}`);
+      return message.reply("✅ Session has been reset.");
+    }
+
+    let cleanPrompt = fullInput
+      .replace(/-v/g, "")
+      .replace(/-m\s?\d+/g, "")
+      .replace(/-img\s?(turbo|flux)/gi, "")
+      .trim();
+
+    if (!cleanPrompt) return message.reply("⚠️ Prompt is empty.");
+
+    await message.reply("⏳ Generating...");
+
+    try {
+      // 🖼️ Image generation
+      if (isImage) {
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=720&height=1280&model=${imgModel}&token=desktophut&negative_prompt=worst%20quality%2C%20blurry&nologo=true`;
+        const res = await axios.get(url, { responseType: "arraybuffer" });
+        const filePath = path.join(__dirname, `${chatSession}_img.jpg`);
+        fs.writeFileSync(filePath, res.data);
+
+        return message.reply({
+          body: `🖼️ Generated using '${imgModel}' model`,
+          attachment: fs.createReadStream(filePath)
+        }, () => fs.unlinkSync(filePath));
       }
-    );
 
-    const aiReply = res.data.choices[0].message.content;
-    updateConversationHistory(uid, "assistant", aiReply);
+      // 🔊 Voice
+      if (isVoice) {
+        const url = `https://coustom-gpt.onrender.com/voice?q=${encodeURIComponent(cleanPrompt)}&session=${voiceSession}&model=${voiceModel}`;
+        const res = await axios.get(url, { responseType: "arraybuffer" });
+        const filePath = path.join(__dirname, `${voiceSession}.mp3`);
+        fs.writeFileSync(filePath, res.data);
 
-    await api.sendMessage(aiReply, event.threadID, (err, info) => {
-      if (!err) {
-        global.GoatBot.onReply.set(info.messageID, {
-          commandName: this.config.name,
-          type: "reply",
-          messageID: info.messageID,
-          author: event.senderID,
+        return message.reply({
+          body: `🎤 [${voiceModel}]`,
+          attachment: fs.createReadStream(filePath)
+        }, (err, info) => {
+          if (!err) {
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName,
+              messageID: info.messageID,
+              author: senderID,
+              isVoice: true,
+              model: voiceModel
+            });
+          }
+          fs.unlinkSync(filePath);
         });
       }
-    }, event.messageID);
-  } catch (error) {
-    const errMsg = error.response?.data?.error?.message || error.message;
-    api.sendMessage(`❌ GPT Error: ${errMsg}`, event.threadID, event.messageID);
-  }
-};
 
-module.exports.onStart = async function ({ api, args, event }) {
-  const uid = event.senderID;
-  const userMsg = args.join(" ");
+      // 💬 Text
+      const res = await axios.get(`https://coustom-gpt.onrender.com/chat?q=${encodeURIComponent(cleanPrompt)}&session=${chatSession}`);
+      const answer = res.data;
+      message.reply(answer, (err, info) => {
+        if (!err) {
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName,
+            messageID: info.messageID,
+            author: senderID,
+            isVoice: false
+          });
+        }
+      });
+    } catch (err) {
+      console.error("❌ Error:", err.message);
+      message.reply("❌ Failed to generate.");
+    }
+  },
 
-  if (!userMsg) {
-    return api.sendMessage(
-      "❗ Please ask something.\nExample:\n`gpt What is AI?`",
-      event.threadID,
-      event.messageID
-    );
-  }
+  onReply: async function({ message, event, Reply, args }) {
+    const { author, commandName, isVoice, model } = Reply;
+    const senderID = event.senderID;
+    if (senderID !== author || !args.length) return;
 
-  try {
-    conversationHistory.set(uid, []);
-    updateConversationHistory(uid, "user", userMsg);
+    const chatSession = `chat_${senderID}`;
+    const voiceSession = `voice_${senderID}`;
+    const prompt = args.join(" ");
 
-    const res = await axios.post(
-      OPENAI_API_URL,
-      {
-        model: "gpt-4o-mini",
-        messages: getConversationHistory(uid),
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
-      }
-    );
+    try {
+      if (isVoice) {
+        const url = `https://coustom-gpt.onrender.com/voice?q=${encodeURIComponent(prompt)}&session=${voiceSession}&model=${model}`;
+        const res = await axios.get(url, { responseType: 'arraybuffer' });
+        const filePath = path.join(__dirname, `${voiceSession}.mp3`);
+        fs.writeFileSync(filePath, res.data);
 
-    const aiReply = res.data.choices[0].message.content;
-    updateConversationHistory(uid, "assistant", aiReply);
-
-    await api.sendMessage(aiReply, event.threadID, (err, info) => {
-      if (!err) {
-        global.GoatBot.onReply.set(info.messageID, {
-          commandName: this.config.name,
-          type: "reply",
-          messageID: info.messageID,
-          author: event.senderID,
+        return message.reply({
+          body: `🎤`,
+          attachment: fs.createReadStream(filePath)
+        }, (err, info) => {
+          if (!err) {
+            global.GoatBot.onReply.set(info.messageID, {
+              commandName,
+              messageID: info.messageID,
+              author: senderID,
+              isVoice: true,
+              model
+            });
+          }
+          fs.unlinkSync(filePath);
         });
       }
-    }, event.messageID);
-  } catch (error) {
-    const errMsg = error.response?.data?.error?.message || error.message;
-    api.sendMessage(`❌ GPT Error: ${errMsg}`, event.threadID, event.messageID);
+
+      const res = await axios.get(`https://coustom-gpt.onrender.com/chat?q=${encodeURIComponent(prompt)}&session=${chatSession}`);
+      const answer = res.data;
+      message.reply(answer, (err, info) => {
+        if (!err) {
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName,
+            messageID: info.messageID,
+            author: senderID,
+            isVoice: false
+          });
+        }
+      });
+    } catch (err) {
+      console.error("❌ Reply Error:", err.message);
+      message.reply("❌ Failed to reply.");
+    }
   }
 };
