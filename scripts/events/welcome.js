@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "welcome",
     version: "2.2",
-    author: "NTKhang + Modified by Ariyan",
+    author: "Ariyan",
     category: "events"
   },
 
@@ -19,7 +19,7 @@ module.exports = {
       multiple1: "you",
       multiple2: "you guys",
       defaultWelcomeMessage:
-`🥰 𝙰𝚂𝚂𝙰𝙻𝙰𝙼𝚄𝙰𝙻𝙰𝙸𝙺𝚄𝙼 {userNameTag}, 𝚠𝚎𝚕𝚌𝚘𝚖𝚎 {multiple} 𝚃𝚘 𝙾𝚞𝚛 『{boxName}』 𝙶𝚛𝚘𝚞𝚙😊
+`🥰 𝙰𝚂𝚂𝙰𝙻𝙰𝙼𝚄𝙰𝙻𝙰𝙸𝙺𝚄𝙼 {userNameTag}, 𝚠𝚎𝚕𝚌𝚘𝚖𝚎 {multiple} 𝚃𝚘 𝙾𝚞𝚛 {boxName} 𝙶𝚛𝚘𝚞𝚙😊
 • 𝙸 𝙷𝚘𝚙𝚎 𝚈𝚘𝚞 𝚆𝚒𝚕𝚕 𝙵𝚘𝚕𝚕𝚘𝚠 𝙾𝚞𝚛 𝙶𝚛𝚘𝚞𝚙 𝚁𝚞𝚕𝚎𝚜
 • {prefix}rules 𝚏𝚘𝚛 𝙶𝚛𝚘𝚞𝚙 𝚁𝚞𝚕𝚎𝚜
 • {prefix}help 𝙵𝚘𝚛 𝙰𝚕𝚕 𝙲𝚘𝚖𝚖𝚊𝚗𝚍𝚜
