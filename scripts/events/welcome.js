@@ -5,7 +5,7 @@ module.exports = {
   config: {
     name: "welcome",
     version: "2.0",
-    author: "NTKhang x Modified by Ariyan",
+    author: "NTKhang x Fixed by Ariyan",
     category: "events"
   },
 
@@ -18,7 +18,7 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ threadsData, message, event, api, getLang }) {
+  onStart: async function ({ threadsData, message, event, api, getLang, usersData }) {
     if (event.logMessageType !== "log:subscribe") return;
 
     return async function () {
@@ -26,6 +26,7 @@ module.exports = {
       const prefix = global.utils.getPrefix(threadID);
       const { nickNameBot } = global.GoatBot.config;
       const dataAddedParticipants = event.logMessageData.addedParticipants;
+      const adderID = event.logMessageData.author; // ✅ Save the author outside timeout
 
       // If bot is added
       if (dataAddedParticipants.some(user => user.userFbId == api.getCurrentUserID())) {
@@ -37,11 +38,12 @@ module.exports = {
         );
       }
 
-      // If users were added
+      // Store participants and adder
       if (!global.temp.welcomeEvent[threadID]) {
         global.temp.welcomeEvent[threadID] = {
           joinTimeout: null,
-          dataAddedParticipants: []
+          dataAddedParticipants: [],
+          adderID // ✅ Save here
         };
       }
 
@@ -53,6 +55,7 @@ module.exports = {
         if (threadData.settings.sendWelcomeMessage === false) return;
 
         const dataAdded = global.temp.welcomeEvent[threadID].dataAddedParticipants;
+        const adderID = global.temp.welcomeEvent[threadID].adderID; // ✅ use from memory
         const dataBanned = threadData.data.banned_ban || [];
         const threadName = threadData.threadName;
         const userName = [];
@@ -60,7 +63,6 @@ module.exports = {
 
         for (const user of dataAdded) {
           if (dataBanned.some(ban => ban.id === user.userFbId)) continue;
-
           userName.push(user.fullName);
           mentions.push({
             tag: user.fullName,
@@ -70,24 +72,19 @@ module.exports = {
 
         if (userName.length === 0) return;
 
-        // Get member count
         const threadInfo = await api.getThreadInfo(threadID);
         const memberCount = threadInfo.participantIDs.length;
 
-        // Get adder name
-        const adderID = event.logMessageData.author;
         let adderName = "Someone";
         try {
-          const adderInfo = await api.getUserInfo(adderID);
-          adderName = adderInfo[adderID]?.name || "Someone";
+          adderName = await usersData.getName(adderID);
         } catch (e) {
-          console.error("Failed to fetch adder name:", e);
+          console.error("❌ Failed to fetch adder name:", e);
         }
 
-        // Construct welcome message
         const welcomeMsg = `🥰 𝙰𝚂𝚂𝙰𝙻𝙰𝙼𝚄𝙰𝙻𝙰𝙸𝙺𝚄𝙼 ${userName.join(", ")} 𝚠𝚎𝚕𝚌𝚘𝚖𝚎 𝚢𝚘𝚞 𝚃𝚘 𝙾𝚞𝚛 ${threadName} 😊
 
-• 𝙸 𝙷𝚘𝚙𝚎 𝚈𝚘𝚞 𝚆𝚒𝚕𝚕 𝚏𝚘𝚕𝚕𝚘𝚠 𝙾𝚞𝚛 𝙶𝚛𝚘𝚞𝚙 𝚁𝚞𝚕𝚎𝚜
+• 𝙸 𝙷𝚘𝚙𝚎 𝚈𝚘𝚞 𝚆𝚒𝚕𝚕 𝙵𝚘𝚕𝚕𝚘𝚠 𝙾𝚞𝚛 𝙶𝚛𝚘𝚞𝚙 𝚁𝚞𝚕𝚎𝚜
 • !𝚛𝚞𝚕𝚎𝚜 𝚏𝚘𝚛 𝙶𝚛𝚘𝚞𝚙 𝚁𝚞𝚕𝚎𝚜
 • !𝚑𝚎𝚕𝚙 𝙵𝚘𝚛 𝙰𝚕𝚕 𝙲𝚘𝚖𝚖𝚊𝚗𝚍𝚜
 
@@ -99,7 +96,6 @@ module.exports = {
           mentions
         };
 
-        // Add attachment if exists
         if (threadData.data.welcomeAttachment) {
           const files = threadData.data.welcomeAttachment;
           const attachments = files.map(file => drive.getFile(file, "stream"));
