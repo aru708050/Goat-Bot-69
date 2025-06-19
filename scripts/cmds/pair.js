@@ -1,85 +1,79 @@
- const axios = require("axios");
-const { createCanvas, loadImage } = require("canvas");
-const fs = require("fs-extra");
+ const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs');
 const path = require("path");
 
 module.exports = {
   config: {
     name: "pair",
-    author: "Ariyan",
-    category: "fun",
+    author: 'Nyx x Ariyan',
+    category: "TOOLS"
   },
 
-  onStart: async function ({ api, event, usersData }) {
+  onStart: async function({ api, event, usersData }) {  
     try {
-      const senderID = event.senderID;
-      const threadID = event.threadID;
-      const messageID = event.messageID;
-
-      const senderData = await usersData.get(senderID);
+      const senderData = await usersData.get(event.senderID);
       const senderName = senderData.name;
+      const threadData = await api.getThreadInfo(event.threadID);
+      const users = threadData.userInfo;
 
-      const threadData = await api.getThreadInfo(threadID);
-      const allUsers = threadData.userInfo;
-      const me = allUsers.find((u) => u.id === senderID);
+      const myData = users.find(user => user.id === event.senderID);
+      if (!myData || !myData.gender) {
+        return api.sendMessage("❌ Undefined gender, cannot find match.", event.threadID, event.messageID);
+      }
 
-      if (!me?.gender)
-        return api.sendMessage("⚠️ Couldn't determine your gender.", threadID, messageID);
+      const myGender = myData.gender;
+      let matchCandidates = [];
 
-      const botID = api.getCurrentUserID();
-      const candidates = allUsers.filter(
-        (u) => u.gender && u.gender !== me.gender && u.id !== senderID && u.id !== botID
-      );
+      if (myGender === "MALE") {
+        matchCandidates = users.filter(user => user.gender === "FEMALE" && user.id !== event.senderID);
+      } else if (myGender === "FEMALE") {
+        matchCandidates = users.filter(user => user.gender === "MALE" && user.id !== event.senderID);
+      } else {
+        return api.sendMessage("❌ Undefined gender, cannot find match.", event.threadID, event.messageID);
+      }
 
-      if (candidates.length === 0)
-        return api.sendMessage("❌ No suitable match found in this group.", threadID, messageID);
+      if (matchCandidates.length === 0) {
+        return api.sendMessage("😔 No suitable match found in the group.", event.threadID, event.messageID);
+      }
 
-      const match = candidates[Math.floor(Math.random() * candidates.length)];
-      const matchName = match.name;
+      const selectedMatch = matchCandidates[Math.floor(Math.random() * matchCandidates.length)];
+      const matchName = selectedMatch.name;
+      const lovePercentage = Math.floor(Math.random() * 100) + 1;
 
-      // Image URLs
-      const avt1URL = `https://graph.facebook.com/${senderID}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-      const avt2URL = `https://graph.facebook.com/${match.id}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-      const bgURL = "https://i.postimg.cc/5tXRQ46D/background3.png";
+      // Canvas part
+      const width = 800, height = 400;
+      const canvas = createCanvas(width, height);
+      const ctx = canvas.getContext('2d');
 
-      // Download all images in parallel
-      const [bgData, avt1Data, avt2Data] = await Promise.all([
-        axios.get(bgURL, { responseType: "arraybuffer" }),
-        axios.get(avt1URL, { responseType: "arraybuffer" }),
-        axios.get(avt2URL, { responseType: "arraybuffer" }),
-      ]);
+      const background = await loadImage("https://i.postimg.cc/tRFY2HBm/0602f6fd6933805cf417774fdfab157e.jpg");
+      const senderAvatar = await loadImage(await usersData.getAvatarUrl(event.senderID));
+      const matchAvatar = await loadImage(await usersData.getAvatarUrl(selectedMatch.id));
 
-      const [bgImg, img1, img2] = await Promise.all([
-        loadImage(bgData.data),
-        loadImage(avt1Data.data),
-        loadImage(avt2Data.data),
-      ]);
+      ctx.drawImage(background, 0, 0, width, height);
+      ctx.drawImage(senderAvatar, 385, 40, 170, 170);
+      ctx.drawImage(matchAvatar, width - 213, 190, 180, 170);
 
-      // Draw canvas
-      const canvas = createCanvas(bgImg.width, bgImg.height);
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img1, 100, 150, 300, 300);
-      ctx.drawImage(img2, 900, 150, 300, 300);
+      const outputPath = path.join(__dirname, 'pair_output.png');
+      const out = fs.createWriteStream(outputPath);
+      const stream = canvas.createPNGStream();
+      stream.pipe(out);
 
-      const buffer = canvas.toBuffer();
-      const filePath = path.join(__dirname, "cache", `pair_${Date.now()}.png`);
-      await fs.promises.writeFile(filePath, buffer);
+      out.on('finish', () => {
+        const message = `🥰𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥 𝐩𝐚𝐢𝐫𝐢𝐧𝐠\n` +
+                        `• ${senderName}🎀\n` +
+                        `• ${matchName}🎀\n` +
+                        `💌𝐖𝐢𝐬𝐡 𝐲𝐨𝐮 𝐭𝐰𝐨 𝐡𝐮𝐧𝐝𝐫𝐞𝐝 𝐲𝐞𝐚𝐫𝐬 𝐨𝐟 𝐡𝐚𝐩𝐩𝐢𝐧𝐞𝐬𝐬💕\n\n` +
+                        `𝐋𝐨𝐯𝐞 𝐩𝐞𝐫𝐜𝐞𝐧𝐭𝐚𝐠𝐞 ${lovePercentage}%💙`;
 
-      // Message
-      const lovePercent = Math.floor(Math.random() * 31) + 70;
-      api.sendMessage(
-        {
-          body: `🥰𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹 𝗽𝗮𝗶𝗿𝗶𝗻𝗴\n・${senderName} 🎀\n・${matchName} 🎀\n💌𝗪𝗶𝘀𝗵 𝘆𝗼𝘂 𝘁𝘄𝗼 𝗵𝘂𝗻𝗱𝗿𝗲𝗱 𝘆𝗲𝗮𝗿𝘀 𝗼𝗳 𝗵𝗮𝗽𝗽𝗶𝗻𝗲𝘀𝘀 ❤️❤️\n\n𝗟𝗼𝘃𝗲 𝗽𝗲𝗿𝗰𝗲𝗻𝘁𝗮𝗴𝗲: ${lovePercent}% 💙`,
-          attachment: fs.createReadStream(filePath),
-        },
-        threadID,
-        () => fs.unlink(filePath),
-        messageID
-      );
-    } catch (err) {
-      console.error(err);
-      api.sendMessage("❌ Error: " + err.message, event.threadID, event.messageID);
+        api.sendMessage({
+          body: message,
+          attachment: fs.createReadStream(outputPath)
+        }, event.threadID, () => fs.unlinkSync(outputPath), event.messageID);
+      });
+
+    } catch (error) {
+      console.error(error);
+      return api.sendMessage("❌ An error occurred: " + error.message, event.threadID, event.messageID);
     }
-  },
+  }
 };

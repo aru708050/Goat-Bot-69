@@ -1,19 +1,19 @@
 [
   {
     "name": "",
-    "usage": 227
+    "usage": 272
   },
   {
     "name": "help",
-    "usage": 76
+    "usage": 106
   },
   {
     "name": "dhn",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "pair",
-    "usage": 110
+    "usage": 252
   },
   {
     "name": "prefix",
@@ -25,11 +25,11 @@
   },
   {
     "name": "file",
-    "usage": 12
+    "usage": 21
   },
   {
     "name": "uid",
-    "usage": 4
+    "usage": 9
   },
   {
     "name": "nsfw",
@@ -37,7 +37,7 @@
   },
   {
     "name": "gemini",
-    "usage": 19
+    "usage": 21
   },
   {
     "name": "xyz",
@@ -45,7 +45,7 @@
   },
   {
     "name": "squeeze",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "hgen",
@@ -65,7 +65,7 @@
   },
   {
     "name": "run",
-    "usage": 28
+    "usage": 31
   },
   {
     "name": "mindgame",
@@ -81,7 +81,7 @@
   },
   {
     "name": "pair2",
-    "usage": 25
+    "usage": 37
   },
   {
     "name": "saying",
@@ -117,7 +117,7 @@
   },
   {
     "name": "antiout",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "goru",
@@ -133,23 +133,23 @@
   },
   {
     "name": "admin",
-    "usage": 3
+    "usage": 8
   },
   {
     "name": "song",
-    "usage": 23
+    "usage": 56
   },
   {
     "name": "pfp",
-    "usage": 5
+    "usage": 14
   },
   {
     "name": "edit",
-    "usage": 10
+    "usage": 15
   },
   {
     "name": "wl",
-    "usage": 18
+    "usage": 21
   },
   {
     "name": "corn",
@@ -181,7 +181,7 @@
   },
   {
     "name": "anisearch",
-    "usage": 1
+    "usage": 3
   },
   {
     "name": "fyp",
@@ -209,7 +209,7 @@
   },
   {
     "name": "info",
-    "usage": 2
+    "usage": 6
   },
   {
     "name": "help2",
@@ -249,7 +249,7 @@
   },
   {
     "name": "sanda",
-    "usage": 6
+    "usage": 7
   },
   {
     "name": "mark",
@@ -261,7 +261,7 @@
   },
   {
     "name": "clear",
-    "usage": 1
+    "usage": 5
   },
   {
     "name": "calender",
@@ -273,7 +273,7 @@
   },
   {
     "name": "up2",
-    "usage": 5
+    "usage": 6
   },
   {
     "name": "chat",
@@ -301,7 +301,7 @@
   },
   {
     "name": "gpt",
-    "usage": 29
+    "usage": 30
   },
   {
     "name": "groupinfo",
@@ -401,7 +401,7 @@
   },
   {
     "name": "pending",
-    "usage": 5
+    "usage": 6
   },
   {
     "name": "emojimix",
@@ -409,7 +409,7 @@
   },
   {
     "name": "waifu",
-    "usage": 11
+    "usage": 15
   },
   {
     "name": "actor",
@@ -421,7 +421,7 @@
   },
   {
     "name": "tag",
-    "usage": 4
+    "usage": 6
   },
   {
     "name": "lala🙂",
@@ -429,19 +429,19 @@
   },
   {
     "name": "4k",
-    "usage": 3
+    "usage": 4
   },
   {
     "name": "pp",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "sing",
-    "usage": 8
+    "usage": 12
   },
   {
     "name": "u",
-    "usage": 15
+    "usage": 25
   },
   {
     "name": "kiss",
@@ -461,11 +461,11 @@
   },
   {
     "name": "flux",
-    "usage": 5
+    "usage": 8
   },
   {
     "name": "shell",
-    "usage": 9
+    "usage": 13
   },
   {
     "name": "adminboxonly",
@@ -477,7 +477,7 @@
   },
   {
     "name": "genx",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "cs3",
@@ -485,11 +485,11 @@
   },
   {
     "name": "slot",
-    "usage": 13
+    "usage": 17
   },
   {
     "name": "bal",
-    "usage": 10
+    "usage": 23
   },
   {
     "name": "qz",
@@ -497,11 +497,11 @@
   },
   {
     "name": "set",
-    "usage": 11
+    "usage": 22
   },
   {
     "name": "top",
-    "usage": 3
+    "usage": 23
   },
   {
     "name": "pair3",
@@ -509,7 +509,7 @@
   },
   {
     "name": "mj",
-    "usage": 20
+    "usage": 29
   },
   {
     "name": "shoti",
@@ -517,7 +517,7 @@
   },
   {
     "name": "acp",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "anisr",
@@ -561,11 +561,11 @@
   },
   {
     "name": "daily",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "pin",
-    "usage": 2
+    "usage": 7
   },
   {
     "name": "setavt",
@@ -589,7 +589,7 @@
   },
   {
     "name": "prompt",
-    "usage": 1
+    "usage": 9
   },
   {
     "name": "rmk",
@@ -601,11 +601,11 @@
   },
   {
     "name": "pm",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "rank",
-    "usage": 7
+    "usage": 21
   },
   {
     "name": "sing二千年...",
@@ -641,7 +641,7 @@
   },
   {
     "name": "lottery",
-    "usage": 45
+    "usage": 73
   },
   {
     "name": "cai",
@@ -649,7 +649,7 @@
   },
   {
     "name": "setwelcome",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "lumin",
@@ -681,6 +681,158 @@
   },
   {
     "name": "pqir",
+    "usage": 1
+  },
+  {
+    "name": "noti",
+    "usage": 3
+  },
+  {
+    "name": "say",
+    "usage": 4
+  },
+  {
+    "name": "pair4",
+    "usage": 2
+  },
+  {
+    "name": "draw",
+    "usage": 2
+  },
+  {
+    "name": "drive",
+    "usage": 1
+  },
+  {
+    "name": "change",
+    "usage": 1
+  },
+  {
+    "name": "balance",
+    "usage": 1
+  },
+  {
+    "name": "zmak",
+    "usage": 1
+  },
+  {
+    "name": "wlt",
+    "usage": 1
+  },
+  {
+    "name": "count",
+    "usage": 1
+  },
+  {
+    "name": "song2",
+    "usage": 1
+  },
+  {
+    "name": "pokemon",
+    "usage": 1
+  },
+  {
+    "name": "imagine2",
+    "usage": 1
+  },
+  {
+    "name": "unsend",
+    "usage": 5
+  },
+  {
+    "name": "bot",
+    "usage": 1
+  },
+  {
+    "name": "warn",
+    "usage": 3
+  },
+  {
+    "name": "user",
+    "usage": 2
+  },
+  {
+    "name": "send",
+    "usage": 1
+  },
+  {
+    "name": "sendmoney",
+    "usage": 8
+  },
+  {
+    "name": "gpt4o",
+    "usage": 1
+  },
+  {
+    "name": "out",
+    "usage": 1
+  },
+  {
+    "name": "prmt",
+    "usage": 1
+  },
+  {
+    "name": "setpic",
+    "usage": 1
+  },
+  {
+    "name": "sall",
+    "usage": 1
+  },
+  {
+    "name": "sallmoney",
+    "usage": 1
+  },
+  {
+    "name": "sell",
+    "usage": 1
+  },
+  {
+    "name": "mj2",
+    "usage": 1
+  },
+  {
+    "name": "100",
+    "usage": 1
+  },
+  {
+    "name": "paor",
+    "usage": 1
+  },
+  {
+    "name": "ttt",
+    "usage": 1
+  },
+  {
+    "name": "spy",
+    "usage": 2
+  },
+  {
+    "name": "tank",
+    "usage": 1
+  },
+  {
+    "name": "aniquiz",
+    "usage": 1
+  },
+  {
+    "name": "bust",
+    "usage": 1
+  },
+  {
+    "name": "bost",
+    "usage": 1
+  },
+  {
+    "name": "trush",
+    "usage": 1
+  },
+  {
+    "name": "pr",
+    "usage": 1
+  },
+  {
+    "name": "gc",
     "usage": 1
   }
 ]

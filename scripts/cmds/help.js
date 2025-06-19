@@ -61,26 +61,24 @@ module.exports = {
       };
 
       if (args.length === 0 || !isNaN(args[0])) {
-        // Build categories and total commands globally
         const categories = {};
         const commandList = [];
 
         for (const [name, value] of commands) {
-          if (value.config.role > role) continue;
           const category = value.config.category?.toLowerCase() || "uncategorized";
           if (!categories[category]) categories[category] = [];
-          categories[category].push(name);
+
+          const isRestricted = value.config.role > role;
+          categories[category].push(isRestricted ? `${name} 🔒` : name);
           commandList.push(name);
         }
 
         const totalCommands = commandList.length;
 
-        // Sort commands inside each category
         Object.keys(categories).forEach(cat => {
           categories[cat].sort((a, b) => a.localeCompare(b));
         });
 
-        // Sort categories alphabetically
         const sortedCategories = Object.keys(categories).sort();
 
         const page = parseInt(args[0]) || 1;
@@ -103,6 +101,7 @@ module.exports = {
           msg += `╰───────────────◊\n`;
         }
 
+        msg += `🔒 = Restricted commands (You can't use them)\n`;
         msg += footerInfo(totalCommands);
 
         return message.reply({
@@ -115,17 +114,22 @@ module.exports = {
         if (!args[1]) return message.reply("🚫 Please specify a category!");
         const categoryName = args[1].toLowerCase();
         const filteredCommands = Array.from(commands.values()).filter(
-          (cmd) => cmd.config.category?.toLowerCase() === categoryName && cmd.config.role <= role
+          (cmd) => (cmd.config.category?.toLowerCase() === categoryName)
         );
 
         if (filteredCommands.length === 0)
           return message.reply(`🚫 No commands found in "${categoryName}" category.`);
 
-        const cmdNames = filteredCommands.map(cmd => cmd.config.name).sort((a, b) => a.localeCompare(b));
+        const cmdNames = filteredCommands.map(cmd => {
+          const isRestricted = cmd.config.role > role;
+          return isRestricted ? `${cmd.config.name} 🔒` : cmd.config.name;
+        }).sort((a, b) => a.localeCompare(b));
+
         let msg = `✨ [ ${categoryName.toUpperCase()} Commands ] ✨\n\n` + ownerInfo;
         msg += `╭──── [ ${categoryName.toUpperCase()} ]\n`;
         msg += `│ ✧ ${cmdNames.join(" ✧ ")}\n`;
         msg += `╰───────────────◊\n`;
+        msg += `🔒 = Restricted commands (You can't use them)\n`;
         msg += footerInfo(cmdNames.length);
 
         return message.reply({
@@ -137,8 +141,8 @@ module.exports = {
       const commandName = args[0].toLowerCase();
       const command = commands.get(commandName) || commands.get(aliases.get(commandName));
 
-      if (!command || command.config.role > role)
-        return message.reply(`🚫 Command "${commandName}" not found or restricted.`);
+      if (!command)
+        return message.reply(`🚫 Command "${commandName}" not found.`);
 
       const configCommand = command.config;
       const roleText = roleTextToString(configCommand.role);
@@ -162,7 +166,7 @@ module.exports = {
         `│ ${usage}\n` +
         `╰───────────────◊\n` +
         `╭─── 📌 Notes ───\n` +
-        `│ Customize as needed with ♡ Ariyan  bot♡\n` +
+        `│ Customize as needed with ♡ Ariyan bot ♡\n` +
         `╰───────────────◊\n`;
       msg += footerInfo(commands.size);
 
