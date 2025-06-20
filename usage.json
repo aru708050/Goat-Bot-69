@@ -1,11 +1,11 @@
 [
   {
     "name": "",
-    "usage": 272
+    "usage": 323
   },
   {
     "name": "help",
-    "usage": 106
+    "usage": 116
   },
   {
     "name": "dhn",
@@ -13,7 +13,7 @@
   },
   {
     "name": "pair",
-    "usage": 252
+    "usage": 290
   },
   {
     "name": "prefix",
@@ -25,11 +25,11 @@
   },
   {
     "name": "file",
-    "usage": 21
+    "usage": 30
   },
   {
     "name": "uid",
-    "usage": 9
+    "usage": 13
   },
   {
     "name": "nsfw",
@@ -37,7 +37,7 @@
   },
   {
     "name": "gemini",
-    "usage": 21
+    "usage": 22
   },
   {
     "name": "xyz",
@@ -65,7 +65,7 @@
   },
   {
     "name": "run",
-    "usage": 31
+    "usage": 38
   },
   {
     "name": "mindgame",
@@ -81,7 +81,7 @@
   },
   {
     "name": "pair2",
-    "usage": 37
+    "usage": 39
   },
   {
     "name": "saying",
@@ -121,35 +121,35 @@
   },
   {
     "name": "goru",
-    "usage": 3
-  },
-  {
-    "name": "cow",
-    "usage": 6
-  },
-  {
-    "name": "callad",
     "usage": 4
   },
   {
+    "name": "cow",
+    "usage": 7
+  },
+  {
+    "name": "callad",
+    "usage": 5
+  },
+  {
     "name": "admin",
-    "usage": 8
-  },
-  {
-    "name": "song",
-    "usage": 56
-  },
-  {
-    "name": "pfp",
-    "usage": 14
-  },
-  {
-    "name": "edit",
     "usage": 15
   },
   {
+    "name": "song",
+    "usage": 66
+  },
+  {
+    "name": "pfp",
+    "usage": 16
+  },
+  {
+    "name": "edit",
+    "usage": 19
+  },
+  {
     "name": "wl",
-    "usage": 21
+    "usage": 23
   },
   {
     "name": "corn",
@@ -217,7 +217,7 @@
   },
   {
     "name": "uns",
-    "usage": 11
+    "usage": 12
   },
   {
     "name": "cs",
@@ -273,7 +273,7 @@
   },
   {
     "name": "up2",
-    "usage": 6
+    "usage": 8
   },
   {
     "name": "chat",
@@ -301,7 +301,7 @@
   },
   {
     "name": "gpt",
-    "usage": 30
+    "usage": 31
   },
   {
     "name": "groupinfo",
@@ -377,7 +377,7 @@
   },
   {
     "name": "album",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "image",
@@ -401,7 +401,7 @@
   },
   {
     "name": "pending",
-    "usage": 6
+    "usage": 7
   },
   {
     "name": "emojimix",
@@ -421,7 +421,7 @@
   },
   {
     "name": "tag",
-    "usage": 6
+    "usage": 8
   },
   {
     "name": "lala🙂",
@@ -433,15 +433,15 @@
   },
   {
     "name": "pp",
-    "usage": 10
+    "usage": 11
   },
   {
     "name": "sing",
-    "usage": 12
+    "usage": 19
   },
   {
     "name": "u",
-    "usage": 25
+    "usage": 28
   },
   {
     "name": "kiss",
@@ -465,7 +465,7 @@
   },
   {
     "name": "shell",
-    "usage": 13
+    "usage": 16
   },
   {
     "name": "adminboxonly",
@@ -485,11 +485,11 @@
   },
   {
     "name": "slot",
-    "usage": 17
+    "usage": 21
   },
   {
     "name": "bal",
-    "usage": 23
+    "usage": 35
   },
   {
     "name": "qz",
@@ -497,19 +497,19 @@
   },
   {
     "name": "set",
-    "usage": 22
+    "usage": 31
   },
   {
     "name": "top",
-    "usage": 23
+    "usage": 28
   },
   {
     "name": "pair3",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "mj",
-    "usage": 29
+    "usage": 33
   },
   {
     "name": "shoti",
@@ -517,7 +517,7 @@
   },
   {
     "name": "acp",
-    "usage": 3
+    "usage": 5
   },
   {
     "name": "anisr",
@@ -533,7 +533,7 @@
   },
   {
     "name": "add",
-    "usage": 4
+    "usage": 6
   },
   {
     "name": "shortcut",
@@ -541,7 +541,7 @@
   },
   {
     "name": "font",
-    "usage": 7
+    "usage": 8
   },
   {
     "name": "fontlist",
@@ -561,11 +561,11 @@
   },
   {
     "name": "daily",
-    "usage": 2
+    "usage": 5
   },
   {
     "name": "pin",
-    "usage": 7
+    "usage": 8
   },
   {
     "name": "setavt",
@@ -589,7 +589,7 @@
   },
   {
     "name": "prompt",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "rmk",
@@ -597,7 +597,7 @@
   },
   {
     "name": "p",
-    "usage": 1
+    "usage": 3
   },
   {
     "name": "pm",
@@ -605,7 +605,7 @@
   },
   {
     "name": "rank",
-    "usage": 21
+    "usage": 23
   },
   {
     "name": "sing二千年...",
@@ -629,7 +629,7 @@
   },
   {
     "name": "cpanel",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "ss",
@@ -641,7 +641,7 @@
   },
   {
     "name": "lottery",
-    "usage": 73
+    "usage": 109
   },
   {
     "name": "cai",
@@ -649,7 +649,7 @@
   },
   {
     "name": "setwelcome",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "lumin",
@@ -685,11 +685,11 @@
   },
   {
     "name": "noti",
-    "usage": 3
+    "usage": 4
   },
   {
     "name": "say",
-    "usage": 4
+    "usage": 6
   },
   {
     "name": "pair4",
@@ -697,7 +697,7 @@
   },
   {
     "name": "draw",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "drive",
@@ -737,7 +737,7 @@
   },
   {
     "name": "unsend",
-    "usage": 5
+    "usage": 6
   },
   {
     "name": "bot",
@@ -757,11 +757,11 @@
   },
   {
     "name": "sendmoney",
-    "usage": 8
+    "usage": 16
   },
   {
     "name": "gpt4o",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "out",
@@ -773,7 +773,7 @@
   },
   {
     "name": "setpic",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "sall",
@@ -781,7 +781,7 @@
   },
   {
     "name": "sallmoney",
-    "usage": 1
+    "usage": 4
   },
   {
     "name": "sell",
@@ -789,7 +789,7 @@
   },
   {
     "name": "mj2",
-    "usage": 1
+    "usage": 3
   },
   {
     "name": "100",
@@ -833,6 +833,74 @@
   },
   {
     "name": "gc",
+    "usage": 1
+  },
+  {
+    "name": "anchestor",
+    "usage": 4
+  },
+  {
+    "name": "mugdho",
+    "usage": 1
+  },
+  {
+    "name": "setname",
+    "usage": 1
+  },
+  {
+    "name": "event",
+    "usage": 1
+  },
+  {
+    "name": "moneysall",
+    "usage": 2
+  },
+  {
+    "name": "welcome",
+    "usage": 1
+  },
+  {
+    "name": "mjx",
+    "usage": 3
+  },
+  {
+    "name": "c",
+    "usage": 1
+  },
+  {
+    "name": "jsjej",
+    "usage": 1
+  },
+  {
+    "name": "tid",
+    "usage": 1
+  },
+  {
+    "name": "ocr",
+    "usage": 1
+  },
+  {
+    "name": "orc",
+    "usage": 1
+  },
+  {
+    "name": "ffquiz",
+    "usage": 1
+  },
+  {
+    "name": "fluxpro",
+    "usage": 5
+  },
+  {
+    "name": "fluxprp",
+    "usage": 1
+  },
+  {
+    "name": "r",
+    "usage": 2
+  },
+  {
+    "name": "bin",
     "usage": 1
   }
 ]

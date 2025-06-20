@@ -1,44 +1,51 @@
 const axios = require("axios");
 
-const baseApiUrl = async () => {
-  const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/exe/main/baseApiUrl.json");
-  return base.data.mahmud;
-};
-
 module.exports = {
   config: {
     name: "fluxpro",
-    version: "1.7",
-    author: "MahMUD",
-    countDown: 10,
+    aliases: [],
+    version: "1.0",
+    author: "Mahi--",
+    countDown: 15,
     role: 0,
-    category: "image generator",
-    guide: "{pn} [prompt]"
+    shortDescription: "Generate anime-style image using Flux model",
+    longDescription: "Generate a stunning anime-style image using Flux.1-pro model from Exoml.",
+    category: "ai",
+    guide: "{pn} <prompt>"
   },
 
-  onStart: async function ({ api, event, args }) {
+  onStart: async function ({ message, args }) {
     const prompt = args.join(" ");
-    if (!prompt) return api.sendMessage("Please provide a prompt to generate an image.", event.threadID, event.messageID);
+    if (!prompt) return message.reply("❗ Please provide a prompt.\nExample: /fluxpro boy with blue hair flying in sky");
 
     try {
-      const apiUrl = await baseApiUrl();
-      if (!apiUrl) return api.sendMessage("Base API URL could not be loaded.", event.threadID, event.messageID);
+      const response = await axios.post(
+        "https://exomlapi.com/api/images/generate",
+        {
+          prompt: prompt,
+          model: "flux.1-pro",
+          size: "1024x1024"
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
+            "Referer": "https://exomlapi.com/image-gen"
+          }
+        }
+      );
 
-      const res = await axios.post(`${apiUrl}/api/fluxpro`, { prompt });
+      const imageUrl = response.data?.data?.[0]?.url;
+      if (!imageUrl) return message.reply("⚠️ Failed to retrieve image.");
 
-      if (!res.data?.imageUrl) return api.sendMessage("Failed to generate image.", event.threadID, event.messageID);
-
-      const imageStream = await global.utils.getStreamFromURL(res.data.imageUrl);
-
-      const message = await api.sendMessage({
-        body: "✅ Here is your generated image",
-        attachment: imageStream
-      }, event.threadID, event.messageID);
-
-      api.setMessageReaction("🪽", message.messageID, () => {}, true);
-
-    } catch (err) {
-      return api.sendMessage("An error occurred while generating the image.", event.threadID, event.messageID);
+      const stream = await global.utils.getStreamFromURL(imageUrl);
+      return message.reply({
+        body: `✨ Image Generated from FluxPro Model\n📌 Prompt: ${prompt}`,
+        attachment: stream
+      });
+    } catch (error) {
+      console.error("FluxPro error:", error.message);
+      return message.reply("❌ An error occurred while generating the image.");
     }
   }
 };

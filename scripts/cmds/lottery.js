@@ -11,7 +11,7 @@ const TICKET_PRICE = 1_000_000;
 module.exports = {
   config: {
     name: "lottery",
-    version: "2.3.0",
+    version: "2.3.1",
     author: "Arijit",
     countDown: 5,
     role: 0,
@@ -35,7 +35,7 @@ module.exports = {
     const userName = userData?.name || "Unknown";
     const subcmd = args[0];
 
-    // BUY command
+    // BUY
     if (subcmd === "buy") {
       const count = parseInt(args[1]);
       if (isNaN(count) || count < 1 || count > MAX_PER_USER) {
@@ -54,27 +54,31 @@ module.exports = {
       const userBalance = userData?.money || 0;
       const cost = count * TICKET_PRICE;
       if (userBalance < cost) {
-        return message.reply(`💸 | You need ₦${cost.toLocaleString()}, but have ₦${userBalance.toLocaleString()}.`);
+        return message.reply(
+          `💸 𝐁𝐚𝐛𝐲, 𝐘𝐨𝐮 𝐧𝐞𝐞𝐝 $${(cost / 1_000_000)}𝐌 𝐭𝐨 𝐛𝐮𝐲 ${count} ticket(s).\n💼 𝐘𝐨𝐮 𝐡𝐚𝐯𝐞: $${(userBalance / 1_000_000)}𝐌`
+        );
       }
 
-      // Deduct balance
       await usersData.set(userId, {
         ...userData,
         money: userBalance - cost
       });
 
+      const newTickets = [];
       for (let i = 0; i < count; i++) {
-        data.tickets.push({
-          userId,
-          ticketNumber: data.tickets.length + 1
-        });
+        const ticketNumber = data.tickets.length + 1;
+        data.tickets.push({ userId, ticketNumber });
+        newTickets.push(ticketNumber);
       }
 
       await fs.writeJson(DATA_PATH, data);
-      return message.reply(`✅ | ${userName}, you bought ${count} ticket(s) for ₦${cost.toLocaleString()}.`);
+
+      return message.reply(
+        `✅ 𝐘𝐨𝐮 𝐩𝐮𝐫𝐜𝐡𝐚𝐬𝐞𝐝 ${count} ticket(s).\n🎟 𝐓𝐢𝐜𝐤𝐞𝐭 𝐧𝐮𝐦𝐛𝐞𝐫𝐬: ${newTickets.join(", ")}\n💰 𝐓𝐨𝐭𝐚𝐥 𝐜𝐨𝐬𝐭: $${(cost / 1_000_000)}𝐌`
+      );
     }
 
-    // DRAW command
+    // DRAW
     else if (subcmd === "draw") {
       if (data.tickets.length < MAX_TICKETS) {
         return message.reply(`⏳ | Only ${data.tickets.length}/${MAX_TICKETS} tickets sold. Cannot draw yet.`);
@@ -90,8 +94,6 @@ module.exports = {
         money: winnerBalance + prize
       });
 
-      const resultMsg = `🎉 | Lottery Draw Complete!\n\n🏆 Winner: ${winnerData.name}\n🎫 Ticket: #${winnerTicket.ticketNumber}\n💰 Prize: ₦${prize.toLocaleString()}`;
-
       await fs.writeJson(STATUS_PATH, {
         name: winnerData.name,
         ticketNumber: winnerTicket.ticketNumber,
@@ -101,10 +103,17 @@ module.exports = {
 
       await fs.writeJson(DATA_PATH, { tickets: [] });
 
-      return message.reply(resultMsg);
+      return message.reply(
+        `╭──────────────⭓\n` +
+        `├ 🏅 𝐖𝐢𝐧𝐧𝐞𝐫 𝐚𝐧𝐧𝐨𝐮𝐧𝐜𝐞𝐝\n` +
+        `├ 🎀 𝐖𝐢𝐧𝐧𝐞𝐫: ${winnerData.name}\n` +
+        `├ 🎟 𝐓𝐢𝐜𝐤𝐞𝐭 𝐧𝐮𝐦𝐛𝐞𝐫: #${winnerTicket.ticketNumber}\n` +
+        `├ 💰 𝐏𝐫𝐢𝐳𝐞: $${prize / 1_000_000}𝐌\n` +
+        `╰──────────────⭓\n\n• Prize money has been deposited automatically.`
+      );
     }
 
-    // INFO command
+    // INFO
     else if (subcmd === "info") {
       if (data.tickets.length === 0) {
         return message.reply("📭 | No tickets have been bought yet.");
@@ -116,35 +125,37 @@ module.exports = {
         usersMap[ticket.userId].push(ticket.ticketNumber);
       }
 
-      let infoText = `🎫 Lottery Info (${data.tickets.length}/${MAX_TICKETS} tickets sold):\n\n`;
+      let infoText = `🎰 𝐋𝐨𝐭𝐭𝐞𝐫𝐲 𝐒𝐭𝐚𝐭𝐮𝐬:\n\n🎟 𝐓𝐢𝐜𝐤𝐞𝐭𝐬 𝐬𝐨𝐥𝐝: ${data.tickets.length}/${MAX_TICKETS}\n💰 𝐏𝐫𝐢𝐳𝐞 𝐩𝐨𝐨𝐥: $${(data.tickets.length * TICKET_PRICE / 1_000_000)}𝐌\n\n`;
+
       for (const [uid, ticketNums] of Object.entries(usersMap)) {
         const uData = await usersData.get(uid);
         const name = uData?.name || uid;
-        const ticketsList = ticketNums.map(n => `#${n}`).join(", ");
-        infoText += `👤 ${name}: ${ticketNums.length} ticket(s) → ${ticketsList}\n`;
+        infoText += `╭─ buy ${name}:\n╰──‣ ${ticketNums.length} Ticket${ticketNums.length > 1 ? "s" : ""}\n`;
       }
 
       return message.reply(infoText.trim());
     }
 
-    // STATUS command
+    // STATUS
     else if (subcmd === "status") {
       if (!status.name) {
         return message.reply("ℹ️ | No previous winner yet.");
       }
 
       return message.reply(
-        `🏆 Last Winner:\n👤 ${status.name}\n🎫 Ticket: #${status.ticketNumber}\n💰 Prize: ₦${status.prize.toLocaleString()}`
+        `🏆 𝐋𝐚𝐬𝐭 𝐖𝐢𝐧𝐧𝐞𝐫:\n👤 ${status.name}\n🎫 Ticket: #${status.ticketNumber}\n💰 Prize: $${status.prize / 1_000_000}𝐌`
       );
     }
 
-    // HELP fallback
+    // HELP
     else {
-      return message.reply(`🎲 | Lottery Command Usage:
-• Buy: lottery buy [1-3]
-• Info: lottery info
-• Draw: lottery draw
-• Status: lottery status`);
+      return message.reply(
+        `🎲 | Lottery Command Usage:\n` +
+        `• Buy: lottery buy [1-3]\n` +
+        `• Info: lottery info\n` +
+        `• Draw: lottery draw\n` +
+        `• Status: lottery status`
+      );
     }
   }
 };

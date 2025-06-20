@@ -35,6 +35,7 @@
   },
   "nickNameBot": " Ｓｔｅｗｉｅ ",
   "prefix": ")",
+  "nyx": "https://rest-nyx-apis-production.up.railway.app/",
   "database": {
     "type": "sqlite",
     "uriMongodb": "",

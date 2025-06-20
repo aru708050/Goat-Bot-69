@@ -53,6 +53,7 @@
   },
   "commandUnload": [
     "jan.js",
-    "msgsend.js"
+    "msgsend.js",
+    "anchestor.js"
   ]
 }
