@@ -1,11 +1,11 @@
 [
   {
     "name": "",
-    "usage": 323
+    "usage": 337
   },
   {
     "name": "help",
-    "usage": 116
+    "usage": 119
   },
   {
     "name": "dhn",
@@ -13,11 +13,11 @@
   },
   {
     "name": "pair",
-    "usage": 290
+    "usage": 291
   },
   {
     "name": "prefix",
-    "usage": 5
+    "usage": 8
   },
   {
     "name": "rm",
@@ -25,7 +25,7 @@
   },
   {
     "name": "file",
-    "usage": 30
+    "usage": 34
   },
   {
     "name": "uid",
@@ -33,11 +33,11 @@
   },
   {
     "name": "nsfw",
-    "usage": 10
+    "usage": 12
   },
   {
     "name": "gemini",
-    "usage": 22
+    "usage": 28
   },
   {
     "name": "xyz",
@@ -133,7 +133,7 @@
   },
   {
     "name": "admin",
-    "usage": 15
+    "usage": 19
   },
   {
     "name": "song",
@@ -141,7 +141,7 @@
   },
   {
     "name": "pfp",
-    "usage": 16
+    "usage": 17
   },
   {
     "name": "edit",
@@ -149,7 +149,7 @@
   },
   {
     "name": "wl",
-    "usage": 23
+    "usage": 26
   },
   {
     "name": "corn",
@@ -273,7 +273,7 @@
   },
   {
     "name": "up2",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "chat",
@@ -385,7 +385,7 @@
   },
   {
     "name": "up",
-    "usage": 6
+    "usage": 7
   },
   {
     "name": "prefex",
@@ -421,7 +421,7 @@
   },
   {
     "name": "tag",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "lala🙂",
@@ -465,7 +465,7 @@
   },
   {
     "name": "shell",
-    "usage": 16
+    "usage": 23
   },
   {
     "name": "adminboxonly",
@@ -485,15 +485,15 @@
   },
   {
     "name": "slot",
-    "usage": 21
+    "usage": 63
   },
   {
     "name": "bal",
-    "usage": 35
+    "usage": 39
   },
   {
     "name": "qz",
-    "usage": 3
+    "usage": 6
   },
   {
     "name": "set",
@@ -509,7 +509,7 @@
   },
   {
     "name": "mj",
-    "usage": 33
+    "usage": 34
   },
   {
     "name": "shoti",
@@ -561,11 +561,11 @@
   },
   {
     "name": "daily",
-    "usage": 5
+    "usage": 6
   },
   {
     "name": "pin",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "setavt",
@@ -589,7 +589,7 @@
   },
   {
     "name": "prompt",
-    "usage": 10
+    "usage": 12
   },
   {
     "name": "rmk",
@@ -717,7 +717,7 @@
   },
   {
     "name": "wlt",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "count",
@@ -789,7 +789,7 @@
   },
   {
     "name": "mj2",
-    "usage": 3
+    "usage": 4
   },
   {
     "name": "100",
@@ -801,7 +801,7 @@
   },
   {
     "name": "ttt",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "spy",
@@ -861,7 +861,7 @@
   },
   {
     "name": "mjx",
-    "usage": 3
+    "usage": 4
   },
   {
     "name": "c",
@@ -901,6 +901,42 @@
   },
   {
     "name": "bin",
+    "usage": 6
+  },
+  {
+    "name": "as",
+    "usage": 1
+  },
+  {
+    "name": "code",
+    "usage": 1
+  },
+  {
+    "name": "imgur",
+    "usage": 1
+  },
+  {
+    "name": "uptime",
+    "usage": 4
+  },
+  {
+    "name": "rtm",
+    "usage": 1
+  },
+  {
+    "name": "up3",
+    "usage": 4
+  },
+  {
+    "name": "up4",
+    "usage": 1
+  },
+  {
+    "name": "dice",
+    "usage": 1
+  },
+  {
+    "name": "catbox",
     "usage": 1
   }
 ]
