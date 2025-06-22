@@ -145,7 +145,7 @@ module.exports = {
     const reactions = ["haha", "😹", "lol", "pro", "gpt", "😹", "hehe"];
     if (reactions.some(reaction => messageBody.includes(reaction))) {
       setTimeout(() => {
-        api.setMessageReaction("😹", event.messageID, () => {}, true);
+        api.setMessageReaction("😹", event.messageID, () => {}, false);
       }, 500);
     }
   }
