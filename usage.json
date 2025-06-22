@@ -1,15 +1,15 @@
 [
   {
     "name": "",
-    "usage": 347
+    "usage": 354
   },
   {
     "name": "help",
-    "usage": 121
+    "usage": 122
   },
   {
     "name": "dhn",
-    "usage": 10
+    "usage": 11
   },
   {
     "name": "pair",
@@ -25,7 +25,7 @@
   },
   {
     "name": "file",
-    "usage": 34
+    "usage": 36
   },
   {
     "name": "uid",
@@ -509,7 +509,7 @@
   },
   {
     "name": "mj",
-    "usage": 34
+    "usage": 38
   },
   {
     "name": "shoti",
@@ -589,7 +589,7 @@
   },
   {
     "name": "prompt",
-    "usage": 12
+    "usage": 15
   },
   {
     "name": "rmk",
@@ -657,7 +657,7 @@
   },
   {
     "name": "midjourney",
-    "usage": 1
+    "usage": 3
   },
   {
     "name": "hel",
@@ -901,7 +901,7 @@
   },
   {
     "name": "bin",
-    "usage": 6
+    "usage": 7
   },
   {
     "name": "as",
@@ -942,5 +942,21 @@
   {
     "name": "adduser",
     "usage": 2
+  },
+  {
+    "name": "promot",
+    "usage": 1
+  },
+  {
+    "name": "prompt2",
+    "usage": 1
+  },
+  {
+    "name": "mj4",
+    "usage": 3
+  },
+  {
+    "name": "mj3",
+    "usage": 1
   }
 ]

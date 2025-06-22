@@ -1,76 +1,109 @@
-  
-const axios = require("axios");
-const { getStreamFromURL } = global.utils;
+ 
+const axios = require('axios');
+const { getStreamFromURL, shortenURL } = global.utils;
+
+function generateTaskId() {
+  return "nyx_" + Math.floor(Math.random() * 1e15);
+}
 
 module.exports = {
   config: {
     name: "mj2",
-    version: "2.1",
-    author: "@Renz Mansueto",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Generate 4 MJ-style images",
-    longDescription: "Generate 4 images and reply with U1-U4 to select a specific one.",
-    category: "image",
-    guide: "{pn} dog"
+    aliases: ["dhn"],
+    version: "1.0",
+    author: "Nyx",
+    countDown: 10,
+    role: 2,
+    longDescription: { en: "Generates images using Nyx MJ API" },
+    category: "GEN",
+    guide: { en: "{pn} [prompt]" }
   },
 
-  onStart: async function ({ api, event, args, message }) {
-    const prompt = args.join(" ").trim();
-    if (!prompt) return message.reply("❌ Please provide a prompt.\nExample: /mj cat");
+  onStart: async function ({ message, event, args, commandName }) {
+    try {
+      const prompt = args.join(" ");
+      if (!prompt) return message.reply("❌ Prompt required");
 
-    message.reply("🧠 Generating Midjourney-style images...", async (err, info) => {
-      try {
-        const res = await axios.get(`https://api.oculux.xyz/api/mjproxy5?prompt=${encodeURIComponent(prompt)}&usePolling=false`);
-        const data = res.data;
+      const taskId = generateTaskId();
+      const loading =  message.reply(`⏳ Generating...\nTask ID: ${taskId}`);
+      const apiURL = `http://37.1.211.119:9003/generate?prompt=${encodeURIComponent(prompt)}&apiKey=nyx008`;
 
-        if (data.status !== "completed" || !data.urls || data.urls.length !== 4) {
-          return message.reply("⚠ Image generation failed or did not return 4 images.");
+      const { data } = await axios.get(apiURL);
+      if (!data?.image_url) {
+        message.unsend(loading.messageID);
+        return message.reply("❌ Generation failed");
+      }
+
+      message.unsend(loading.messageID);
+      message.reply({
+        body: `🎨 Generated (ID: ${taskId})\nReply with U1-U4/V1-V4`,
+        attachment: await getStreamFromURL(data.image_url)
+      }, (err, info) => {
+        global.GoatBot.onReply.set(info.messageID, {
+          commandName,
+          author: event.senderID,
+          imageId: data.image_id,
+          upscales: data.parts,
+          variations: data.variations
+        });
+      });
+
+    } catch (err) {
+      message.reply(`❌ Error server in maintain`);
+    }
+  },
+
+  onReply: async function ({ message, event, Reply, commandName }) {
+  const { upscales , variations ,author, imageId } = Reply
+    console.log(upscales)
+    try {
+      if (event.senderID !== author) return;
+      const choice = event.body?.toUpperCase();
+      if (!/^[UV][1-4]$/.test(choice)) return message.reply("❌ Invalid choice");
+
+      const taskId = generateTaskId();
+      const loading = message.reply(`⏳ Processing ${choice}...\nID: ${taskId}`);
+
+      if (choice.startsWith("U")) {
+const selected = upscales?.filter(p => p.name === choice)[0]
+        if (!selected?.url) {
+           message.unsend(loading.messageID);
+          return message.reply("❌ Invalid upscale URL");
         }
 
-        const attachments = await Promise.all(data.urls.map(url => getStreamFromURL(url)));
+        await message.reply({
+          body: `🖼 Upscaled ${choice} (ID: ${taskId})\n${await shortenURL(selected.url)}`,
+          attachment: await getStreamFromURL(selected.url)
+        });
+         message.unsend(loading.messageID);
+      }
 
+      if (choice.startsWith("V")) {
+        const variationAPI = `http://37.1.211.119:9003/variation?variation=${choice}&image_id=${imageId}`;
+        const { data: result } = await axios.get(variationAPI);
+
+        if (!result?.image_url) {
+           message.unsend(loading.messageID);
+          return message.reply("❌ Variation failed");
+        }
+
+        message.unsend(loading.messageID);
         message.reply({
-          body: `✨U1,U2,U3,U4`,
-          attachment: attachments
-        }, (err, info2) => {
-          global.GoatBot.onReply.set(info2.messageID, {
-            commandName: this.config.name,
+          body: `🎨 Variation ${choice} (ID: ${taskId})\nReply with new options`,
+          attachment: await getStreamFromURL(result.image_url)
+        }, (err, info) => {
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName,
             author: event.senderID,
-            imageUrls: {
-              U1: data.urls[0],
-              U2: data.urls[1],
-              U3: data.urls[2],
-              U4: data.urls[3]
-            }
+            imageId: result.image_id,
+            upscales: result.parts,
+            variations: result.actions
           });
         });
-      } catch (error) {
-        console.error(error);
-        message.reply(`❌ Error: ${error.message}`);
       }
-    });
-  },
 
-  onReply: async function ({ event, Reply, message }) {
-    const { author, imageUrls } = Reply;
-    if (event.senderID !== author) return;
-
-    const choice = event.body.trim().toUpperCase();
-    if (!["U1", "U2", "U3", "U4"].includes(choice)) {
-      return message.reply("❌ Invalid choice. Please reply with U1, U2, U3, or U4 only.");
-    }
-
-    try {
-      const selectedUrl = imageUrls[choice];
-      const imageStream = await getStreamFromURL(selectedUrl, `${choice}.png`);
-      return message.reply({
-        body: `📷 Selected image: ${choice}`,
-        attachment: imageStream
-      });
-    } catch (error) {
-      console.error(error);
-      message.reply(`❌ Failed to load image: ${error.message}`);
+    } catch (err) {
+      message.reply(`❌ Error server in maintain`);
     }
   }
 };
