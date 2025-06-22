@@ -1,11 +1,11 @@
 [
   {
     "name": "",
-    "usage": 354
+    "usage": 370
   },
   {
     "name": "help",
-    "usage": 122
+    "usage": 127
   },
   {
     "name": "dhn",
@@ -141,7 +141,7 @@
   },
   {
     "name": "pfp",
-    "usage": 17
+    "usage": 20
   },
   {
     "name": "edit",
@@ -149,7 +149,7 @@
   },
   {
     "name": "wl",
-    "usage": 26
+    "usage": 29
   },
   {
     "name": "corn",
@@ -301,7 +301,7 @@
   },
   {
     "name": "gpt",
-    "usage": 31
+    "usage": 33
   },
   {
     "name": "groupinfo",
@@ -465,7 +465,7 @@
   },
   {
     "name": "shell",
-    "usage": 23
+    "usage": 25
   },
   {
     "name": "adminboxonly",
@@ -509,7 +509,7 @@
   },
   {
     "name": "mj",
-    "usage": 38
+    "usage": 40
   },
   {
     "name": "shoti",
@@ -589,7 +589,7 @@
   },
   {
     "name": "prompt",
-    "usage": 15
+    "usage": 16
   },
   {
     "name": "rmk",
@@ -889,7 +889,7 @@
   },
   {
     "name": "fluxpro",
-    "usage": 6
+    "usage": 8
   },
   {
     "name": "fluxprp",
@@ -901,7 +901,7 @@
   },
   {
     "name": "bin",
-    "usage": 7
+    "usage": 9
   },
   {
     "name": "as",
@@ -925,7 +925,7 @@
   },
   {
     "name": "up3",
-    "usage": 6
+    "usage": 7
   },
   {
     "name": "up4",
@@ -949,14 +949,30 @@
   },
   {
     "name": "prompt2",
-    "usage": 1
+    "usage": 5
   },
   {
     "name": "mj4",
-    "usage": 3
+    "usage": 7
   },
   {
     "name": "mj3",
+    "usage": 1
+  },
+  {
+    "name": "offbot",
+    "usage": 1
+  },
+  {
+    "name": "gpt2",
+    "usage": 1
+  },
+  {
+    "name": "legit",
+    "usage": 1
+  },
+  {
+    "name": "nijiv5",
     "usage": 1
   }
 ]
