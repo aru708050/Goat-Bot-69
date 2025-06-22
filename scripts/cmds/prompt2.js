@@ -1,32 +1,40 @@
-const axios = require('axios');
-const baseApiUrl = async () => {
-  const base = await axios.get(
-    `https://raw.githubusercontent.com/Blankid018/D1PT0/main/baseApiUrl.json`,
-  );
-  return base.data.api;
-};
-module.exports.config ={
+ const axios = require("axios");
+
+module.exports = {
+  config: {
     name: "prompt2",
-    version: "6.9",
-    author: "dipto",
+    version: "1.0",
+    author: "@RI F AT ",
     countDown: 5,
     role: 0,
-    category: "media",
-    description: " image to prompt",
-    category: "tools",
-    usages: "reply [image]"
+    shortDescription: {
+      en: "Generate AI image prompt from image"
+    },
+    longDescription: {
+      en: "Generate a detailed AI prompt from an image using your deployed API"
+    },
+    category: "ai",
+    guide: {
+      en: "{pn} [style]\nReply to an image with this command.\nStyles: default, xl, midjourney"
+    }
   },
 
-module.exports.onStart = async ({ api, event,args }) =>{
-    const dip = event.messageReply?.attachments[0]?.url || args.join(' ');
-    if (!dip) {
-      return api.sendMessage('Please reply to an image.', event.threadID, event.messageID);
+  onStart: async function ({ message, event, args }) {
+    const style = args[0]?.toLowerCase() || "default";
+
+    if (!event.messageReply || !event.messageReply.attachments?.[0]?.type.startsWith("photo")) {
+      return message.reply("Please reply to an image to generate a prompt.");
     }
+
+    const imgURL = event.messageReply.attachments[0].url;
+    const apiUrl = `https://cheap-prompt.onrender.com/fetch?img=${encodeURIComponent(imgURL)}&style=${style}`;
+
     try {
-      const prom = (await axios.get(`${await baseApiUrl()}/prompt?url=${encodeURIComponent(dip)}`)).data.data[0].response;
-         api.sendMessage(prom, event.threadID, event.messageID);
-    } catch (error) {
-      console.error(error);
-      return api.sendMessage('Failed to convert image into text.', event.threadID, event.messageID);
+      const res = await axios.get(apiUrl);
+      return message.reply(res.data); // Send only the prompt
+    } catch (err) {
+      console.error("Prompt fetch error:", err.message);
+      return message.reply("Failed to generate prompt. Please try again later.");
     }
-  };
+  }
+};

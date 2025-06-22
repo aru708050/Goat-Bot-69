@@ -1,7 +1,7 @@
 [
   {
     "name": "",
-    "usage": 346
+    "usage": 347
   },
   {
     "name": "help",
@@ -17,7 +17,7 @@
   },
   {
     "name": "prefix",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "rm",
@@ -145,7 +145,7 @@
   },
   {
     "name": "edit",
-    "usage": 21
+    "usage": 22
   },
   {
     "name": "wl",
