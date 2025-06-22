@@ -1,11 +1,11 @@
 [
   {
     "name": "",
-    "usage": 337
+    "usage": 346
   },
   {
     "name": "help",
-    "usage": 119
+    "usage": 121
   },
   {
     "name": "dhn",
@@ -17,7 +17,7 @@
   },
   {
     "name": "prefix",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "rm",
@@ -29,7 +29,7 @@
   },
   {
     "name": "uid",
-    "usage": 13
+    "usage": 14
   },
   {
     "name": "nsfw",
@@ -117,7 +117,7 @@
   },
   {
     "name": "antiout",
-    "usage": 2
+    "usage": 3
   },
   {
     "name": "goru",
@@ -145,7 +145,7 @@
   },
   {
     "name": "edit",
-    "usage": 19
+    "usage": 21
   },
   {
     "name": "wl",
@@ -249,7 +249,7 @@
   },
   {
     "name": "sanda",
-    "usage": 7
+    "usage": 9
   },
   {
     "name": "mark",
@@ -273,7 +273,7 @@
   },
   {
     "name": "up2",
-    "usage": 9
+    "usage": 10
   },
   {
     "name": "chat",
@@ -385,7 +385,7 @@
   },
   {
     "name": "up",
-    "usage": 7
+    "usage": 8
   },
   {
     "name": "prefex",
@@ -401,7 +401,7 @@
   },
   {
     "name": "pending",
-    "usage": 7
+    "usage": 8
   },
   {
     "name": "emojimix",
@@ -421,7 +421,7 @@
   },
   {
     "name": "tag",
-    "usage": 9
+    "usage": 12
   },
   {
     "name": "lala🙂",
@@ -541,7 +541,7 @@
   },
   {
     "name": "font",
-    "usage": 8
+    "usage": 9
   },
   {
     "name": "fontlist",
@@ -573,7 +573,7 @@
   },
   {
     "name": "fuck",
-    "usage": 1
+    "usage": 2
   },
   {
     "name": "kiss2",
@@ -889,7 +889,7 @@
   },
   {
     "name": "fluxpro",
-    "usage": 5
+    "usage": 6
   },
   {
     "name": "fluxprp",
@@ -925,7 +925,7 @@
   },
   {
     "name": "up3",
-    "usage": 4
+    "usage": 6
   },
   {
     "name": "up4",
@@ -938,5 +938,9 @@
   {
     "name": "catbox",
     "usage": 1
+  },
+  {
+    "name": "adduser",
+    "usage": 2
   }
 ]
