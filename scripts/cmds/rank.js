@@ -1,4 +1,4 @@
-const Canvas = require("canvas");
+ const Canvas = require("canvas");
 const path = require("path");
 const fs = require("fs");
 
@@ -60,7 +60,7 @@ module.exports = {
 
         if (rawCommand.includes("-s background")) {
             if (event.type !== "message_reply" || !event.messageReply.attachments || event.messageReply.attachments[0].type !== "photo") {
-                return message.reply("⚠️ To set your personal background, please reply to an image and use `/rank -s background`.");
+                return message.reply("⚠ To set your personal background, please reply to an image and use `/rank -s background`.");
             }
             const imageUrl = event.messageReply.attachments[0].url;
             const userInfo = await usersData.get(event.senderID) || {};
@@ -76,7 +76,7 @@ module.exports = {
                 await usersData.set(event.senderID, userInfo);
                 return message.reply("✅ Your custom rank card background has been removed.");
             }
-            return message.reply("ℹ️ You have not set a custom background.");
+            return message.reply("ℹ You have not set a custom background.");
         }
 
         // --- Default: Generate Rank Card (This will only run if the settings commands are not found) ---
@@ -320,7 +320,7 @@ function drawIcon(ctx, iconName, x, y, size, color) {
     ctx.fillStyle = color;
     ctx.font = `${size}px "Bold"`; 
     const icons = {
-        'id': '🆔', 'nickname': '✏️', 'gender': '🚻', 'username': '🌐', 'level': '⭐',
+        'id': '🆔', 'nickname': '✏', 'gender': '🚻', 'username': '🌐', 'level': '⭐',
         'exp': '⚡', 'money': '💰', 'messages': '💬', 'exp_rank': '🏆', 'money_rank': '💎'
     };
     if (icons[iconName]) {

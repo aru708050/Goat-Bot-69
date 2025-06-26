@@ -55,7 +55,7 @@ module.exports = {
         }
       }
 
-      if (!prompt) return message.reply("⚠️ Please provide a prompt.");
+      if (!prompt) return message.reply("⚠ Please provide a prompt.");
 
       // Build API URL
       let apiUrl = `https://egret-driving-cattle.ngrok-free.app/api/midjourney?prompt=${encodeURIComponent(prompt)}&ratio=${ratio}`;
@@ -86,7 +86,7 @@ module.exports = {
       await message.unsend(processingMsg.messageID);
       const stream = await global.utils.getStreamFromURL(imageUrl);
       
-      let resultMessage = `🖼️ Generated Image (Ratio: ${ratio})`;
+      let resultMessage = `🖼 Generated Image (Ratio: ${ratio})`;
       if (cref) resultMessage += "\n🔗 Using reference image from your reply";
       resultMessage += "\n💬 Reply with:\nU1-U4 for Upscale\nV1-V4 for Variations";
       

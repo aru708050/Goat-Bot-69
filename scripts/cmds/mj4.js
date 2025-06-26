@@ -1,10 +1,20 @@
- 
-
-const axios = require("axios");
+ const axios = require("axios");
 const { getStreamFromURL } = global.utils;
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
+
+const cleanTempFolder = () => {
+  const tempDir = path.join(__dirname, 'temp');
+  if (fs.existsSync(tempDir)) {
+    fs.readdirSync(tempDir).forEach(file => {
+      const filePath = path.join(tempDir, file);
+      fs.unlink(filePath, () => {});
+    });
+  }
+};
+
+cleanTempFolder();
 
 module.exports.config = {
   name: "mjx",
@@ -21,54 +31,43 @@ module.exports.config = {
 };
 
 async function splitImage(imageUrl, messageID) {
-  try {
-    const image = await loadImage(imageUrl);
-    const width = image.width;
-    const height = image.height;
-    const halfWidth = Math.floor(width / 2);
-    const halfHeight = Math.floor(height / 2);
+  const image = await loadImage(imageUrl);
+  const width = image.width;
+  const height = image.height;
+  const halfWidth = Math.floor(width / 2);
+  const halfHeight = Math.floor(height / 2);
 
-    const parts = [
-      { name: 'U1', x: 0, y: 0 },
-      { name: 'U2', x: halfWidth, y: 0 },
-      { name: 'U3', x: 0, y: halfHeight },
-      { name: 'U4', x: halfWidth, y: halfHeight }
-    ];
+  const parts = [
+    { name: 'U1', x: 0, y: 0 },
+    { name: 'U2', x: halfWidth, y: 0 },
+    { name: 'U3', x: 0, y: halfHeight },
+    { name: 'U4', x: halfWidth, y: halfHeight }
+  ];
 
-    const tempDir = path.join(__dirname, 'temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
+  const tempDir = path.join(__dirname, 'temp');
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
-    const generatedFiles = [];
+  const generatedFiles = [];
 
-    for (const part of parts) {
-      const canvas = createCanvas(halfWidth, halfHeight);
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(image, part.x, part.y, halfWidth, halfHeight, 0, 0, halfWidth, halfHeight);
+  for (const part of parts) {
+    const canvas = createCanvas(halfWidth, halfHeight);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, part.x, part.y, halfWidth, halfHeight, 0, 0, halfWidth, halfHeight);
 
-      const filePath = path.join(tempDir, `${messageID}_${part.name}.png`);
-      const out = fs.createWriteStream(filePath);
-      const stream = canvas.createPNGStream();
-      await new Promise((resolve, reject) => {
-        stream.pipe(out);
-        out.on('finish', () => {
-          generatedFiles.push({
-            name: part.name,
-            path: filePath
-          });
-          resolve();
-        });
-        out.on('error', reject);
+    const filePath = path.join(tempDir, `${messageID}_${part.name}.png`);
+    const out = fs.createWriteStream(filePath);
+    const stream = canvas.createPNGStream();
+    await new Promise((resolve, reject) => {
+      stream.pipe(out);
+      out.on('finish', () => {
+        generatedFiles.push({ name: part.name, path: filePath });
+        resolve();
       });
-    }
-
-    return generatedFiles;
-
-  } catch (error) {
-    console.error('Error splitting image:', error);
-    throw error;
+      out.on('error', reject);
+    });
   }
+
+  return generatedFiles;
 }
 
 module.exports.onReply = async function ({ api, event, message, Reply }) {
@@ -90,24 +89,14 @@ module.exports.onReply = async function ({ api, event, message, Reply }) {
             Reply.splitImages.forEach(img => {
               try {
                 fs.unlinkSync(img.path);
-              } catch (e) {
-          console.error(`Error deleting ${img.path}:`, e);
-              }
+              } catch (_) {}
             });
             return;
           }
         }
 
         let actionn;
-       /* if (reply == "u1") {
-          actionn = Reply.action[0];
-        } else if (reply == "u2") {
-          actionn = Reply.action[1];
-        } else if (reply == "u3") {
-          actionn = Reply.action[2];
-        } else if (reply == "u4") {
-          actionn = Reply.action[3];
-        } else */if (reply == "v1") {
+        if (reply == "v1") {
           actionn = Reply.action[4];
         } else if (reply == "v2") {
           actionn = Reply.action[5];
@@ -137,7 +126,6 @@ module.exports.onReply = async function ({ api, event, message, Reply }) {
         }, event.messageID);
       }
     } catch (error) {
-      console.error(error.message);
       api.sendMessage(`❎ | Error: ${error.message}`, event.threadID, event.messageID);
     }
   }
@@ -146,21 +134,16 @@ module.exports.onReply = async function ({ api, event, message, Reply }) {
 module.exports.onStart = async function ({ message, api, args, event }) {
   try {
     const dipto = args.join(" ");
-    if (!args[0]) {
-      return message.reply("❎ | Please provide a prompt.");
-    }
+    if (!args[0]) return message.reply("❎ | Please provide a prompt.");
 
     const waitMsg = await message.reply("Generating your image...");
     const res = await axios.get(`https://noobs-api.top/dipto/midjourney?prompt=${encodeURIComponent(dipto)}&key=mjcudi`);
-
     message.unsend(waitMsg.messageID);
 
     const splitImages = await splitImage(res.data.image_url, event.messageID);
 
     await api.sendMessage({
-      body: `Generated image:\n\n𝐑𝐞𝐩𝐥𝐲 𝐭𝐨 𝐭𝐡𝐢𝐬 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐰𝐢𝐭𝐡 𝐔𝟏/𝐔𝟐/𝐔𝟑/𝐔𝟒
-🔄
-𝐕𝟏/𝐕𝟐/𝐕𝟑/𝐕𝟒 𝐭𝐨 𝐠𝐞𝐭 𝐢𝐦𝐚𝐠𝐞.`,
+      body: `Generated image:\n\n𝐑𝐞𝐩𝐥𝐲 𝐭𝐨 𝐭𝐡𝐢𝐬 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐰𝐢𝐭𝐡 𝐔𝟏/𝐔𝟐/𝐔𝟑/𝐔𝟒\n🔄\n𝐕𝟏/𝐕𝟐/𝐕𝟑/𝐕𝟒 𝐭𝐨 𝐠𝐞𝐭 𝐢𝐦𝐚𝐠𝐞.`,
       attachment: await getStreamFromURL(res.data.image_url)
     }, event.threadID, (error, info) => {
       global.GoatBot.onReply.set(info.messageID, {
@@ -172,10 +155,11 @@ module.exports.onStart = async function ({ message, api, args, event }) {
         action: res.data.actions,
         splitImages: splitImages
       });
+        splitImages.forEach(img => {
+          fs.unlink(img.path, () => {});
+        });
     }, event.messageID);
-
   } catch (error) {
-    console.error(error.message);
     api.sendMessage(`❎ | Error: ${error.message}`, event.threadID, event.messageID);
   }
-}
+};

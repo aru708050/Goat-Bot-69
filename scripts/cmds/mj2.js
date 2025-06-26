@@ -1,5 +1,4 @@
- 
-const axios = require('axios');
+ const axios = require('axios');
 const { getStreamFromURL, shortenURL } = global.utils;
 
 function generateTaskId() {
@@ -9,7 +8,7 @@ function generateTaskId() {
 module.exports = {
   config: {
     name: "mj2",
-    aliases: ["dhn"],
+    aliases: ["mj2"],
     version: "1.0",
     author: "Nyx",
     countDown: 10,
