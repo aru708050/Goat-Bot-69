@@ -1,54 +1,41 @@
-const DIG = require("discord-image-generation");
-const fs = require("fs-extra");
-
 module.exports = {
   config: {
     name: "clown",
+    aliases: ["clown"],
     version: "1.0",
-    author: "𝐀𝐒𝐈𝐅 𝐱𝟔𝟗",
-    countDown: 1,
-    role: 0,
-    shortDescription: "Clown Image!",
-    longDescription: "",
+    author: "otineeeyyyy",
+    shortDescription: "make clown images on someone photo someone",
+    longDescription: "make clown images on someone photo someone",
     category: "fun",
-    guide: "{pn} [mention|leave_blank]",
-    envConfig: {
-      deltaNext: 5
-    }
+    guide: "{pn} @mention/reply"
   },
 
-  langs: {
-    vi: {
-      noTag: "Bạn phải tag người bạn muốn tát"
-    },
-    en: {
-      noTag: "You must tag the person you want to "
-    }
-  },
+  async onStart({ api, event, usersData }) {
+    try {
+      const mention = Object.keys(event.mentions);
+      let imageLink = "";
 
-  onStart: async function ({ event, message, usersData, args, getLang }) {
-    let mention = Object.keys(event.mentions)
-    let uid;
-
-    if (event.type == "message_reply") {
-      uid = event.messageReply.senderID
-    } else {
-      if (mention[0]) {
-        uid = mention[0]
+      if (mention.length === 0) { 
+        //replied user
+     if(event.type == "message_reply");
+        imageLink = await usersData.getAvatarUrl(event.messageReply.senderID);
       } else {
-        console.log(" jsjsj")
-        uid = event.senderID
+        //mentioned user
+        const mentionedUserID = mention[0];
+        imageLink = await usersData.getAvatarUrl(mentionedUserID);
       }
+
+      const gifURL = `https://api.popcat.xyz/clown?image=${encodeURIComponent(imageLink)}`;
+
+      const message = {
+        body: "Haha clown🤡",
+        attachment: [await global.utils.getStreamFromURL(gifURL)]
+      };
+      
+      api.sendMessage(message, event.threadID, event.messageID);
+    } catch (err) {
+      console.error(err);
+      api.sendMessage("please mention or reply to someone", event.threadID, event.messageID);
     }
-
-    let url = await usersData.getAvatarUrl(uid)
-    let avt = await new DIG.Clown().getImage(url)
-
-    const pathSave = `${__dirname}/tmp/Clown.png`;
-    fs.writeFileSync(pathSave, Buffer.from(avt));
-    // Send the image as a reply to the command message
-    message.reply({
-      attachment: fs.createReadStream(pathSave)
-    }, () => fs.unlinkSync(pathSave));
   }
 };
