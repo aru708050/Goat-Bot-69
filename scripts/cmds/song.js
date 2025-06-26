@@ -51,7 +51,7 @@ async function shazamDetection(audioPath) {
 
 async function searchAndDownloadSong(query) {
   const isURL = /^https?:\/\//.test(query);
-  const searchResponse = await axios.get('http://193.149.164.141:8610/api/ytsearch', {
+  const searchResponse = await axios.get('http://193.149.164.168:2115/api/ytsearch', {
     params: isURL ? { url: query } : { query }
   });
 

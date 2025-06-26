@@ -7,9 +7,9 @@ module.exports = {
     author: "SiAM",
     countDown: 5,
     role: 0,
-    shortDescription: "This command allows \n| users to play the Truth or Dare game.",
+    shortDescription: "This command allows users to play the Truth or Dare game.",
     longDescription: "This command enables users to play the classic Truth or Dare game. They can choose either 'Truth' or 'Dare' and receive a randomly selected question or challenge.",
-    category: "game",
+    category: "Games",
     guide: {
       en: "To play the Truth or Dare game, use the command '{pn} truth' for a truth question or '{pn} dare' for a dare challenge."
     }
